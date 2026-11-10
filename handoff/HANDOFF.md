@@ -1,6 +1,6 @@
 # Handoff
 
-- **Updated:** 2026-11-10 22:40 IST
+- **Updated:** 2026-11-10 23:00 IST
 - **Agent:** claude-code
 - **Active task:** T-006 Setup assets for /accel-setup (Copilot and Claude Code)
 - **Task status:** review
@@ -40,6 +40,21 @@ The `/accel-setup` assets exist for both GitHub Copilot (VS Code) and Claude Cod
 2. If both pass, merge `task/T-006-setup-assets` and set T-006 `done`.
 3. Push `main`: it has unpushed commits (ADR-0009, the T-007 merge and its done commit).
 4. Next eligible tasks: T-108 (playbooks), T-201 (catalog), T-008 if its dependencies are done.
+
+## Pending on macOS
+
+None of this can run on the Windows dev machine. Do it on a Mac (Apple Silicon first, Intel if available) without `~/.accel`, and record the results in a session log.
+
+1. **Copilot live check (T-006):** in VS Code agent mode, run `/accel-setup` and approve each command. Confirm it ends with a working `inspect_analysis_settings` call on the `rea` server (MCP: List Servers, start `rea`). Check that VS Code accepts the agent's `tools` names (`execute`, `read`, `search`, `rea/*`) and the prompt's `agent:` key; adjust them if VS Code reports unknown tools.
+2. **Claude Code live check (T-006):** run `/accel-setup` in Claude Code, then `/mcp` to connect `rea`. Check that `.mcp.json`'s relative path (`setup/rea-mcp.sh`) starts the server. The Linux container (`tests/setup/claude-session.sh`) can cover this check on Windows instead.
+3. **macOS installer paths (T-005), never run for real:**
+   - the darwin downloads: Node `darwin-arm64`/`darwin-x64`, and the Temurin mac tarball with its `Contents/Home` layout (`JAVA_HOME`);
+   - the arm64 decompiler build (`make ghidra_opt ARCH_TYPE="-arch arm64" OSDIR=mac_arm_64` in `Ghidra/Features/Decompiler/src/decompile/cpp`, copying `ghidra_opt` to `os/mac_arm_64/decompile`). This was tested only with a fake Makefile, so the source path and output name are assumptions;
+   - the `xcode-select -p` prerequisite check;
+   - `/bin/bash` 3.2 with BSD `sed`, `awk`, `find` and `shasum` (the script avoids bash 4 features, but has only run on Linux bash 5);
+   - `bash setup/install.sh verify` (REA's `verify:ghidra`), which should pass on macOS without the Linux locale workaround;
+   - the Gatekeeper fix in the rea-setup skill (`xattr -dr com.apple.quarantine ~/.accel/tools`), if macOS quarantines anything.
+4. **Optional (T-007):** `make -C tests/fixtures/repos/native-sdk-sample/vendor/tinymath` builds `libtinymath.dylib`.
 
 ## How to verify
 

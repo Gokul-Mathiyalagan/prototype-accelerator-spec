@@ -128,7 +128,7 @@ tasks:
     - "Live check (Gokul, Claude Code): on a macOS or Linux laptop without REA, /accel-setup reaches a working REA tool call; result recorded in a session log"
   status: review
   owner: claude-code
-  progress: "All offline criteria met (370 tests). Two live checks remain for Gokul: /accel-setup in VS Code Copilot and in Claude Code on a macOS or Linux laptop."
+  progress: "All offline criteria met (370 tests). Pending: the two live checks on macOS (Copilot in VS Code; Claude Code, which the Linux container can cover too), plus the macOS installer paths listed in HANDOFF.md."
 
 - id: T-007
   phase: 0
