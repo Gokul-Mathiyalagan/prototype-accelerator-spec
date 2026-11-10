@@ -1,0 +1,29 @@
+# An interactive Claude Code session on Linux, for T-006's live check (ADR-0009).
+# Start it with tests/setup/claude-session.sh, then type /accel-setup.
+FROM debian:bookworm-slim
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      bash build-essential ca-certificates curl git make procps tar unzip \
+ && rm -rf /var/lib/apt/lists/*
+
+# Node runs the Claude Code CLI only; /accel-setup installs its own pinned Node for REA.
+# Same version and checksum as setup/versions.lock.
+ARG NODE_VERSION=24.22.1
+ARG NODE_SHA256=eb6728e77c576a35162c122c45ccadf224d89ff00abc8dae46cc2897c6002d7c
+RUN curl -fsSLo /tmp/node.tgz "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.gz" \
+ && echo "${NODE_SHA256}  /tmp/node.tgz" | sha256sum -c - \
+ && mkdir /opt/node \
+ && tar -xzf /tmp/node.tgz -C /opt/node --strip-components=1 \
+ && rm /tmp/node.tgz
+ENV PATH=/opt/node/bin:$PATH
+
+ARG CLAUDE_CODE_VERSION=2.1.322
+RUN npm install -g --no-audit --no-fund "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}"
+
+# A normal user, as on a laptop. The repo is mounted read-only at /workspace.
+RUN useradd -m -s /bin/bash dev \
+ && git config --system --add safe.directory /workspace
+USER dev
+WORKDIR /workspace
+ENV LANG=C.UTF-8
+CMD ["claude"]

@@ -29,11 +29,14 @@ The `/accel-setup` assets exist for both GitHub Copilot (VS Code) and Claude Cod
 - Copilot: `.github/agents/accel-setup.agent.md`, `.github/prompts/accel-setup.prompt.md`, `.github/skills/rea-setup/SKILL.md`, `.github/copilot-instructions.md`, `.vscode/mcp.json`.
 - Claude Code: `.claude/commands/accel-setup.md` (the main session: subagent, then `/mcp`, then the REA call), `.claude/agents/accel-setup.md` (tools: Bash, Read, Grep, Glob), `.mcp.json`.
 - `docs/setup.md`: the user guide for both assistants.
+- Live-check tooling: `tests/setup/Dockerfile.claude` and `tests/setup/claude-session.sh` (an interactive Claude Code session on Linux; the `accel-claude-home` volume keeps the login and `~/.accel`).
 - Tests: `tests/setup/test_setup_assets.py`, a new scenario in `tests/setup/scenarios.sh` (#14), and a new guard test in `tests/dev/test_ai_guard.py`.
 
 ## Next step
 
-1. Gokul runs the two live checks on a macOS or Linux laptop without `~/.accel`: `/accel-setup` in VS Code Copilot agent mode, and `/accel-setup` in Claude Code. Record the results in a session log. Watch the points under "Watch out".
+1. Gokul runs the two live checks, and records the results in a session log. Watch the points under "Watch out".
+   - Claude Code, on this Windows machine: run `tests/setup/claude-session.sh` in Git Bash (or, in PowerShell, `docker run -it --rm -v "${PWD}:/workspace:ro" -v accel-claude-home:/home/dev accel-claude-session:latest`). Sign in, approve the `rea` and `accel` project servers, type `/accel-setup`, approve each `bash setup/install.sh` command, run `/mcp` to connect `rea` when asked, and confirm the `inspect_analysis_settings` call. The image is Debian, Node 24.22.1 and Claude Code 2.1.322, running as a non-root user with the repo mounted read-only.
+   - Copilot: in VS Code agent mode on a macOS or Linux laptop without `~/.accel`.
 2. If both pass, merge `task/T-006-setup-assets` and set T-006 `done`.
 3. Push `main`: it has unpushed commits (ADR-0009, the T-007 merge and its done commit).
 4. Next eligible tasks: T-108 (playbooks), T-201 (catalog), T-008 if its dependencies are done.
