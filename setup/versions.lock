@@ -1,0 +1,25 @@
+# setup/versions.lock: everything /accel-setup installs, pinned with SHA-256 (spec/02).
+# Move a pin deliberately: update the version and every checksum together, then run
+# `make test-live NEEDS=rea,ghidra`. install.sh reads this file with a small parser, so
+# keep this exact layout: two-space indents, one `key: value` per line.
+schema_version: 1
+rea:
+  repo: https://github.com/morluto/rea
+  commit: b2f3dc81fa503c2b9ff0d8625336ed2e74d1e829    # REA has no tagged releases; move this deliberately
+node:
+  version: "24.22.1"                                    # REA's .nvmrc at the pinned commit
+  sha256:
+    darwin-arm64: 89c682593d76cd44233fa53b1563264e7de9cbb189cad169135c5b4fadfbc0a7
+    darwin-x64: d132557e7ee2b85af08b0c8c34338e65c6430f2238d01f727728ef42dc83b035
+    linux-x64: eb6728e77c576a35162c122c45ccadf224d89ff00abc8dae46cc2897c6002d7c
+jdk:
+  vendor: temurin
+  version: "21.0.13+9"
+  sha256:
+    darwin-arm64: bf036b35b071bfb2f54f2c0af8ee8d88afa95ee6eb3dce02c0f94cfc2524d04a
+    darwin-x64: 9aa1d1c17ae5467a022679e7e0af5c00797d94ac462ed1a46f4db07a8a34a6dd
+    linux-x64: d7f5d5cf865a2902b70ff549b97586a7d3f234e016f041ab447ea740c7d66d1c
+ghidra:
+  version: 12.1.4                                       # 12.2 needs JDK 25; stay on 12.1
+  url: https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.4_build/ghidra_12.1.4_PUBLIC_20260921.zip
+  sha256: ddac49f903da9d5bac833e5cc79395098b9c33cfd3279be5f31bd00387d2d4db

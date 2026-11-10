@@ -1,0 +1,7 @@
+# Linux container for the live install test: real downloads, real REA build and verify.
+# build-essential gives REA's verify:ghidra its host C compiler; procps gives REA `ps`.
+FROM debian:bookworm-slim
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      bash build-essential ca-certificates curl git make procps tar unzip \
+ && rm -rf /var/lib/apt/lists/*

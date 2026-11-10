@@ -1,64 +1,70 @@
 # Handoff
 
-- **Updated:** 2026-11-10 20:05 IST
+- **Updated:** 2026-11-10 21:05 IST
 - **Agent:** claude-code
-- **Active task:** none
-- **Task status:** done
-- **Branch:** main
-- **Last commit:** 5d28cbf T-004: handoff
+- **Active task:** T-005 REA installer, versions.lock and launcher
+- **Task status:** review
+- **Branch:** task/T-005-rea-installer
+- **Last commit:** 8643045 T-005: handoff
 
 ## Summary
 
-T-004 is merged into `main` and done at Gokul's request, with the live test deferred. The gateway is built and tested offline. It uses API key auth per ADR-0008, redacts every outbound message, audits every call without content, and enforces budgets. The one live test (a tool-calling round trip against Azure) is written but hasn't run, because no `.env` exists yet. `make check` passes with 253 tests.
+The installer, launcher and `accel setup`/`accel doctor` are built, and every offline criterion passes. A real install in a Linux container (Docker on Gokul's Windows host) works end to end, and the real REA 6.8.0 MCP server answers through `rea-mcp.sh`. The one gap is REA's own `npm run verify:ghidra`, which fails on Linux because of an REA verifier bug (below). Gokul accepted this gap, and T-005 is in review.
 
 ## Acceptance criteria
 
-- [x] Gateway uses openai.AzureOpenAI with API key auth (ADR-0008), reading the four variables with their defaults: `gateway/azure.py` and `gateway/config.py`. `test_gateway_azure.py` checks the URL, `api-key` header and api-version through the real SDK over `httpx.MockTransport`.
-- [x] A missing endpoint or key raises a typed config error naming the variable; an api_key in accel.toml is rejected; the key never appears in logs, audit lines or error messages: `test_gateway_config.py`. The gateway also redacts the key itself if it shows up in content.
-- [x] .env.example lists the four variables with placeholder values only: `test_env_example_lists_the_four_variables_with_placeholders`.
-- [x] Supports chat completions with tool calling and structured output (JSON Schema from a contract model), reasoning effort, and streaming off by default: `Gateway.chat` and `Gateway.structured`. `stream=False` is always sent.
-- [x] Redaction runs on every outbound message: `accel_core/redaction/`, with 12 rule kinds and typed placeholders such as `[REDACTED_EMAIL_1]` (`test_redaction.py`, plus the first test in `test_gateway.py`).
-- [x] Per-call and per-run budgets (tokens, cost) raise BudgetExceeded: `gateway/budget.py`.
-- [x] Every call writes an audit line, never the content: `accel_core/audit/`, to `$ACCEL_HOME/audit/model-calls.jsonl`.
-- [x] FakeGateway in accel_core.testing replays recorded responses for unit tests: `accel_core/testing/gateway.py`, with a recording in `tests/fixtures/gateway/tool-round-trip.json`.
-- [ ] A live_azure test makes one tool-calling round trip against gpt-6.1-sol: written in `tests/core/test_gateway_live.py`, **not yet run**.
+- [x] versions.lock pins the REA commit, Node, Temurin JDK 21 and Ghidra 12.1.4 with SHA-256 for darwin-arm64, darwin-x64 and linux-x64. Real values, fetched from nodejs.org SHASUMS256, the Adoptium API and the Ghidra GitHub release; validated by `test_versions_lock_matches_the_contract_and_pins`.
+- [x] install.sh --check --json prints valid install-check JSON; install, verify subcommands follow the spec/02 contract and exit codes (`tests/setup/test_install.py`).
+- [x] Installs only under $ACCEL_HOME, no sudo, no shell-profile edits; checksum mismatch exits 3; ACCEL_MIRROR replaces hosts only.
+- [x] Builds the arm64 decompiler on Apple Silicon; skips it elsewhere. The flags are checked with a fake decompiler Makefile under `ACCEL_PLATFORM=darwin-arm64`; it hasn't been built on a real Mac.
+- [x] Re-running after success changes nothing and exits 0 (the file-hash snapshot is identical, excluding `logs/`).
+- [x] rea-mcp.sh starts REA's MCP server from $ACCEL_HOME and fails with a clear message if setup hasn't run (fake test, plus a live `initialize` reply from REA 6.8.0).
+- [x] accel setup and accel doctor wrap the script with --json output (`tests/cli/test_setup_command.py`).
+- [ ] shellcheck clean; a Linux container test runs --check end to end with downloads faked; a live_rea test runs the full install and npm run verify:ghidra. Shellcheck and the container test are done. The live test's install, re-run, check and MCP steps pass; **verify:ghidra fails** (below).
 
 ## State of the active task
 
-- `accel_core/errors.py` (new): `AccelError` plus `ConfigError` (exit 3), `BudgetExceeded` (1), `ExternalCallError` (4) and `StructuredOutputError` (4), each with a stable `code`.
-- `accel_core/gateway/`: `config.py` resolves settings (precedence: environment, `.env`, `accel.toml`, defaults), `types.py` holds the provider-neutral types and the `Transport` protocol, `azure.py` is the only module that imports `openai`, and `budget.py` and `gateway.py` are the rest.
-- `openai>=2,<3` was added to `accel-core` (2.54.0 is locked).
+- `setup/versions.lock`, `setup/install.sh` (bash 3.2 safe, with an awk parser for the lock), `setup/rea-mcp.sh`.
+- `accel_cli/main.py` (new `accel` entry point) and `accel_cli/commands/setup.py` (`setup`, `doctor`). No other task created the CLI entry point, so it was added here.
+- `tests/setup/`: `Dockerfile` and `make_fakes.sh` (a fake mirror and lock), `scenarios.sh` (every scenario in one container), `test_install.py`, plus `Dockerfile.live`, `live.sh` and `test_install_live.py` (real install in the `accel-live-home` Docker volume).
+- Contract fix: `JdkPin.version` now accepts Temurin's `+build` suffix (`21.0.13+9`); the schema is regenerated.
+
+## The verify:ghidra failure
+
+REA's verifier (`scripts/lib/native-value-e2e.mjs`, `environment()`) starts its MCP server with a hand-built environment that drops `LANG`/`LC_ALL`. Its socket-boundary check then uses a temp path containing `雪`. Without a locale, the JVM on Linux encodes file names as ASCII (`sun.jnu.encoding=ANSI_X3.4-1968`), the path becomes `???`, and Ghidra's LaunchSupport fails ("User home directory does not exist"). Tested in the container: only `LC_ALL=C.UTF-8` fixes it; `-Dsun.jnu.encoding` and `-Dfile.encoding` don't. Since the verifier strips that variable, the check can't pass on Linux at this commit (REA `main`, b2f3dc8). macOS Java always uses UTF-8 for file names, so it should pass there. `install.sh verify` and `rea-mcp.sh` now fall back to `LC_ALL=C.UTF-8` on Linux, which fixes REA's real runtime but not its verifier.
 
 ## Next step
 
-1. Claim T-007 (fixture repos), the first eligible task this machine can run. T-005 needs REA and Ghidra.
-2. Deferred: once `.env` exists, run `uv run make test-live NEEDS=azure` (expect 1 passed). If the API version rejects `reasoning_effort` or `tool_choice`, raise `OPENAI_API_VERSION` in `.env`.
+1. Gokul reviews and merges `task/T-005-rea-installer`, then sets T-005 `done`.
+2. Gokul files the upstream issue drafted in `handoff/log/2026-11-10-claude-code-T-005.md` on morluto/rea.
+3. When convenient, confirm `setup/install.sh verify` on a Mac.
+4. The next eligible tasks are T-006 (Copilot setup assets; needs copilot and rea), T-007 (fixture repos), T-108 (playbooks) and T-201 (catalog).
 
 ## How to verify
 
 ```bash
-uv run make check                        # 253 passed, 1 skipped (symlink test on Windows), 1 deselected (live)
-uv run make test-live NEEDS=azure        # needs .env; fails with "AZURE_OPENAI_ENDPOINT is not set" without it
+uv run make check                                   # all offline tests, including 24 container tests (needs Docker)
+uv run make test-live NEEDS=rea,ghidra UV=uv        # real install in Docker; ~28 min first run, ~15 min after
 ```
 
 ## Decisions and assumptions
 
-- Structured output sends `json_schema` with `strict: false`, because Azure's strict mode needs every field required and contract models have defaults. The gateway validates the reply against the model and raises `StructuredOutputError` naming the failing fields.
-- Budgets: a per-call or run token limit also caps `max_completion_tokens`. The overrun check runs after the call, which is still audited (`outcome: budget_exceeded`). A cost budget without prices raises `ConfigError` before any call.
-- The employee-ID pattern defaults to `EMP-1234`-style IDs. A real format can be passed in through `Redactor(rules=...)`.
-- Each redaction session gives the same value the same placeholder, so the model can still see which values repeat.
+- Docker is used on Windows because install.sh targets macOS and Linux; the platform's users are on macOS and Linux.
+- `--check` exits 1 when not ready, matching the CLI's "checks failed" code. Usage errors exit 1, since spec/02 reserves 2 to 5.
+- CLI exit mapping from install.sh: 2→3 (prerequisite), 3, 4 and 5→4 (external failure).
+- Downloads are deleted after extraction (Ghidra is 570 MB). Each install run writes a log to `$ACCEL_HOME/logs/`; the idempotency check excludes it.
+- npm's cache and XDG config and cache folders are pointed into `$ACCEL_HOME`, and `HUSKY=0` stops REA installing git hooks.
+- Test hooks: `ACCEL_VERSIONS_LOCK` and `ACCEL_PLATFORM` (documented in install.sh's header).
 
 ## Spec changes
 
-- spec/01 config table: added the token-price row (`accel.toml` `input_usd_per_mtok` and `output_usd_per_mtok`), which cost budgets need. `accel.toml.example` matches.
-- ADR-0008 (accepted earlier this session, on `main`) covers the auth change.
+None. (The `JdkPin` pattern fix is a contract correction from T-003.)
 
 ## Open questions for Gokul
 
-- What format do employee IDs use? The default rule only catches `EMP`-prefixed IDs.
-- What are the per-million-token prices for `gpt-6.1-sol`? Cost budgets can't be enforced until they're set in `accel.toml`.
+- `make test-live` breaks on Windows: `uv run` sets `UV` to a backslash path that `sh` mangles in the `test-live` recipe. Pass `UV=uv` for now. Should I add a task to fix the Makefile?
 
 ## Watch out
 
-- `main` has one unpushed commit (`a6d3562`, ADR-0008), and this branch is built on it.
-- Ruff sorts `accel_core` imports in `tests/` as third-party (no blank line after `pytest`). That's the existing config, so don't fight it.
+- The `accel-live-home` Docker volume holds a full install (about 2 GB). Remove it with `docker volume rm accel-live-home`.
+- The container tests mount the repo, so shell scripts need LF endings (`.gitattributes` enforces it).

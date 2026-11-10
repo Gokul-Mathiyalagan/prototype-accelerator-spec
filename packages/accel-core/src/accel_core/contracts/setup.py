@@ -71,10 +71,10 @@ class NodePin(Part):
 
 
 class JdkPin(Part):
-    """Temurin JDK 21."""
+    """Temurin JDK 21, as Adoptium names the release (for example `21.0.13+9`)."""
 
     vendor: Literal["temurin"]
-    version: Annotated[str, StringConstraints(pattern=r"^21(\.\d+)*$")]
+    version: Annotated[str, StringConstraints(pattern=r"^21(\.\d+)*(\+\d+)?$")]
     sha256: dict[Platform, Sha256]
 
     @model_validator(mode="after")

@@ -5,6 +5,9 @@ description = "Thin command-line interface over the platform packages."
 requires-python = ">=3.12,<3.13"
 dependencies = ["accel-core==0.1.0", "accel-extract==0.1.0", "accel-skills==0.1.0", "accel-package==0.1.0", "accel-design==0.1.0", "accel-sdlc==0.1.0", "accel-evals==0.1.0", "accel-mcp==0.1.0", "typer>=0.15,<1"]
 
+[project.scripts]
+accel = "accel_cli.main:main"
+
 [build-system]
 requires = ["hatchling>=1.27,<2"]
 build-backend = "hatchling.build"
