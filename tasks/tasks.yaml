@@ -103,9 +103,9 @@ tasks:
     - "rea-mcp.sh starts REA's MCP server from $ACCEL_HOME and fails with a clear message if setup hasn't run"
     - "accel setup and accel doctor wrap the script with --json output"
     - "shellcheck clean; a Linux container test runs --check end to end with downloads faked; a live_rea test runs the full install and npm run verify:ghidra"
-  status: todo
-  owner: null
-  progress: ""
+  status: in_progress
+  owner: claude-code
+  progress: "Claimed; building installer, testing in a Linux Docker container (Windows host)."
 
 - id: T-006
   phase: 0

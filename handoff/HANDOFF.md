@@ -2,9 +2,9 @@
 
 - **Updated:** 2026-11-10 20:05 IST
 - **Agent:** claude-code
-- **Active task:** none
-- **Task status:** done
-- **Branch:** main
+- **Active task:** T-005 REA installer, versions.lock and launcher
+- **Task status:** in_progress
+- **Branch:** task/T-005-rea-installer
 - **Last commit:** 5d28cbf T-004: handoff
 
 ## Summary
