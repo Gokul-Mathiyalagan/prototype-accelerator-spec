@@ -34,6 +34,7 @@ case "$*" in
   ci*) mkdir -p node_modules ;;
   "run build") touch build-done ;;
   "run verify:ghidra")
+    printf 'NODE_OPTIONS=%s\nLC_ALL=%s\n' "${NODE_OPTIONS:-}" "${LC_ALL:-}" >verify-env.log
     for line in $(seq 1 60); do echo "verify output line $line"; done
     [ -z "${FAKE_VERIFY_FAIL:-}" ] || { echo "fake verify failure"; exit 1; }
     [ -d "$GHIDRA_INSTALL_DIR/Ghidra" ] || { echo "no ghidra"; exit 1; }

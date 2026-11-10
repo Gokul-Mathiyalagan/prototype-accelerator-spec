@@ -508,6 +508,11 @@ command_verify() {
     . "$ACCEL_HOME/rea.env"
     set +a
     ensure_utf8_locale
+    # REA's verifier rebuilds its server's environment without the locale but keeps
+    # NODE_OPTIONS, so preload a script that restores a UTF-8 locale inside it.
+    if [ "$(uname -s)" = Linux ]; then
+      export NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }--require \"$SCRIPT_DIR/utf8-locale.cjs\""
+    fi
     cd "$TOOLS/rea" && with_toolchain quiet npm run verify:ghidra
   ); then
     fail 5 "REA's Ghidra check failed. See the log above."

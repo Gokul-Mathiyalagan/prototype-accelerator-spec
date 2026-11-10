@@ -1,15 +1,15 @@
 # Handoff
 
-- **Updated:** 2026-11-10 21:15 IST
+- **Updated:** 2026-11-10 21:50 IST
 - **Agent:** claude-code
 - **Active task:** none
 - **Task status:** done
-- **Branch:** main
-- **Last commit:** dc3e0d7 Merge branch 'task/T-005-rea-installer'
+- **Branch:** task/T-005-verify-locale
+- **Last commit:** 621e7e1 T-005: record decision to keep REA on Docker for Windows
 
 ## Summary
 
-The installer, launcher and `accel setup`/`accel doctor` are built, and every offline criterion passes. A real install in a Linux container (Docker on Gokul's Windows host) works end to end, and the real REA 6.8.0 MCP server answers through `rea-mcp.sh`. The one gap is REA's own `npm run verify:ghidra`, which fails on Linux because of an REA verifier bug (below). Gokul accepted this gap, and T-005 is merged into `main` and done.
+The installer, launcher and `accel setup`/`accel doctor` are built, and every offline criterion passes. A real install in a Linux container (Docker on Gokul's Windows host) works end to end, and the real REA 6.8.0 MCP server answers through `rea-mcp.sh`. T-005 is merged into `main` and done. The Linux `verify:ghidra` gap is now fixed on `task/T-005-verify-locale` (below): REA's own verifier passes against the real install. That fix is waiting for Gokul to merge it.
 
 ## Acceptance criteria
 
@@ -20,7 +20,7 @@ The installer, launcher and `accel setup`/`accel doctor` are built, and every of
 - [x] Re-running after success changes nothing and exits 0 (the file-hash snapshot is identical, excluding `logs/`).
 - [x] rea-mcp.sh starts REA's MCP server from $ACCEL_HOME and fails with a clear message if setup hasn't run (fake test, plus a live `initialize` reply from REA 6.8.0).
 - [x] accel setup and accel doctor wrap the script with --json output (`tests/cli/test_setup_command.py`).
-- [ ] shellcheck clean; a Linux container test runs --check end to end with downloads faked; a live_rea test runs the full install and npm run verify:ghidra. Shellcheck and the container test are done. The live test's install, re-run, check and MCP steps pass; **verify:ghidra fails** (below).
+- [x] shellcheck clean; a Linux container test runs --check end to end with downloads faked; a live_rea test runs the full install and npm run verify:ghidra. Live in Docker: install, re-run, check and MCP passed earlier; `install.sh verify` passed against the same install after the fix below.
 
 ## State of the active task
 
@@ -29,20 +29,21 @@ The installer, launcher and `accel setup`/`accel doctor` are built, and every of
 - `tests/setup/`: `Dockerfile` and `make_fakes.sh` (a fake mirror and lock), `scenarios.sh` (every scenario in one container), `test_install.py`, plus `Dockerfile.live`, `live.sh` and `test_install_live.py` (real install in the `accel-live-home` Docker volume).
 - Contract fix: `JdkPin.version` now accepts Temurin's `+build` suffix (`21.0.13+9`); the schema is regenerated.
 
-## The verify:ghidra failure
+## The verify:ghidra fix (Linux)
 
-REA's verifier (`scripts/lib/native-value-e2e.mjs`, `environment()`) starts its MCP server with a hand-built environment that drops `LANG`/`LC_ALL`. Its socket-boundary check then uses a temp path containing `雪`. Without a locale, the JVM on Linux encodes file names as ASCII (`sun.jnu.encoding=ANSI_X3.4-1968`), the path becomes `???`, and Ghidra's LaunchSupport fails ("User home directory does not exist"). Tested in the container: only `LC_ALL=C.UTF-8` fixes it; `-Dsun.jnu.encoding` and `-Dfile.encoding` don't. Since the verifier strips that variable, the check can't pass on Linux at this commit (REA `main`, b2f3dc8). macOS Java always uses UTF-8 for file names, so it should pass there. `install.sh verify` and `rea-mcp.sh` now fall back to `LC_ALL=C.UTF-8` on Linux, which fixes REA's real runtime but not its verifier.
+REA's verifier (`scripts/lib/native-value-e2e.mjs`, `environment()`) starts its MCP server with a hand-built environment that drops `LANG`/`LC_ALL`. Its socket-boundary check then uses a temp path containing `雪`. Without a locale, the JVM on Linux encodes file names as ASCII (`sun.jnu.encoding=ANSI_X3.4-1968`), the path becomes `???`, and Ghidra's LaunchSupport fails ("User home directory does not exist"). Tested in the container: only `LC_ALL=C.UTF-8` fixes it; `-Dsun.jnu.encoding` and `-Dfile.encoding` don't. Since the verifier strips that variable, the check can't pass on Linux at this commit (REA `main`, b2f3dc8). macOS Java always uses UTF-8 for file names, so it should pass there. The verifier does keep `NODE_OPTIONS`, so on Linux `install.sh verify` now preloads `setup/utf8-locale.cjs` (`--require`), which sets `LC_ALL=C.UTF-8` inside REA's Node processes when no UTF-8 locale is set. REA's code and pin are unchanged. `rea-mcp.sh` sets the same fallback directly, since its environment reaches REA intact. Result: `REA's Ghidra check passed.` (exit 0).
 
 ## Next step
 
-1. Gokul files the upstream issue drafted in `handoff/log/2026-11-10-claude-code-T-005.md` on morluto/rea.
-2. When convenient, confirm `setup/install.sh verify` on a Mac.
-3. The next eligible tasks are T-006 (Copilot setup assets; needs copilot and rea), T-007 (fixture repos), T-108 (playbooks) and T-201 (catalog).
+1. Gokul merges `task/T-005-verify-locale` into `main`.
+2. Optionally, file the upstream issue drafted in `handoff/log/2026-11-10-claude-code-T-005.md` (the preload is a workaround; REA's verifier is still wrong upstream). Then drop the preload when REA fixes it.
+3. When convenient, confirm `setup/install.sh verify` on a Mac.
+4. The next eligible tasks are T-006 (Copilot setup assets; needs copilot and rea), T-007 (fixture repos), T-108 (playbooks) and T-201 (catalog).
 
 ## How to verify
 
 ```bash
-uv run make check                                   # all offline tests, including 24 container tests (needs Docker)
+uv run make check                                   # all offline tests, including 25 container tests (needs Docker)
 uv run make test-live NEEDS=rea,ghidra UV=uv        # real install in Docker; ~28 min first run, ~15 min after
 ```
 

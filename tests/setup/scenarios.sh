@@ -63,6 +63,7 @@ run rea-mcp-missing env ACCEL_HOME=/accel/nothing bash "$REA_MCP"
 
 # 6. verify runs npm run verify:ghidra; a failure exits 5 and shows the log tail.
 run verify fake_env /accel/linux bash "$INSTALL" verify
+cp /accel/linux/tools/rea/verify-env.log "$OUT/verify/verify-env.log"
 run verify-fail fake_env /accel/linux FAKE_VERIFY_FAIL=1 bash "$INSTALL" verify
 run verify-not-installed fake_env /accel/empty bash "$INSTALL" verify
 

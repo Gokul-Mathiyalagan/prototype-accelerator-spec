@@ -201,6 +201,14 @@ def test_verify_runs_reas_ghidra_check(out: Path) -> None:
     assert "REA's Ghidra check passed." in _text(out, "verify")
 
 
+def test_verify_restores_a_utf8_locale_inside_reas_verifier_on_linux(out: Path) -> None:
+    # REA's verifier drops LANG and LC_ALL but keeps NODE_OPTIONS (see utf8-locale.cjs).
+    assert (out / "verify" / "verify-env.log").read_text().splitlines() == [
+        'NODE_OPTIONS=--require "/repo/setup/utf8-locale.cjs"',
+        "LC_ALL=C.UTF-8",
+    ]
+
+
 def test_failed_verify_exits_5_and_prints_the_last_50_log_lines(out: Path) -> None:
     assert _exit(out, "verify-fail") == 5
     stderr = _text(out, "verify-fail")
