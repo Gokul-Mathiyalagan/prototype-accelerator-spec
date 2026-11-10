@@ -1,15 +1,15 @@
 # Handoff
 
-- **Updated:** 2026-11-10 20:59 IST
+- **Updated:** 2026-11-10 21:05 IST
 - **Agent:** claude-code
 - **Active task:** T-005 REA installer, versions.lock and launcher
-- **Task status:** in_progress
+- **Task status:** review
 - **Branch:** task/T-005-rea-installer
-- **Last commit:** 229dc5c T-005: handoff, verify:ghidra blocked on Linux by REA verifier
+- **Last commit:** 8643045 T-005: handoff
 
 ## Summary
 
-The installer, launcher and `accel setup`/`accel doctor` are built, and every offline criterion passes. A real install in a Linux container (Docker on Gokul's Windows host) works end to end, and the real REA 6.8.0 MCP server answers through `rea-mcp.sh`. The one gap is REA's own `npm run verify:ghidra`, which fails on Linux because of an REA verifier bug (below). Waiting on Gokul's decision before moving to review.
+The installer, launcher and `accel setup`/`accel doctor` are built, and every offline criterion passes. A real install in a Linux container (Docker on Gokul's Windows host) works end to end, and the real REA 6.8.0 MCP server answers through `rea-mcp.sh`. The one gap is REA's own `npm run verify:ghidra`, which fails on Linux because of an REA verifier bug (below). Gokul accepted this gap, and T-005 is in review.
 
 ## Acceptance criteria
 
@@ -35,8 +35,10 @@ REA's verifier (`scripts/lib/native-value-e2e.mjs`, `environment()`) starts its 
 
 ## Next step
 
-1. Gokul decides: (a) accept with verify:ghidra confirmed on a Mac (`setup/install.sh install && setup/install.sh verify`), or (b) accept the Linux result as-is and report the bug upstream to morluto/rea.
-2. Then set T-005 to `review`. Push `main` (1 unpushed commit: `1be7ae6 T-004: mark done`) and this branch.
+1. Gokul reviews and merges `task/T-005-rea-installer`, then sets T-005 `done`.
+2. Gokul files the upstream issue drafted in `handoff/log/2026-11-10-claude-code-T-005.md` on morluto/rea.
+3. When convenient, confirm `setup/install.sh verify` on a Mac.
+4. The next eligible tasks are T-006 (Copilot setup assets; needs copilot and rea), T-007 (fixture repos), T-108 (playbooks) and T-201 (catalog).
 
 ## How to verify
 
@@ -60,7 +62,6 @@ None. (The `JdkPin` pattern fix is a contract correction from T-003.)
 
 ## Open questions for Gokul
 
-- How should we handle the verify:ghidra failure on Linux (see Next step)?
 - `make test-live` breaks on Windows: `uv run` sets `UV` to a backslash path that `sh` mangles in the `test-live` recipe. Pass `UV=uv` for now. Should I add a task to fix the Makefile?
 
 ## Watch out
