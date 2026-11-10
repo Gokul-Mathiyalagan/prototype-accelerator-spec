@@ -52,7 +52,7 @@ These are fixed by Gokul's environment and confirmed decisions (see `decisions/`
 
 | ID | Constraint |
 |---|---|
-| **C1** | The platform's users have exactly two AI services: **GitHub Copilot** (Business; agent mode in VS Code and Copilot CLI) and **Azure OpenAI** (deployment `gpt-6.1-sol`). Product code calls models only through `accel_core.gateway`, which supports only Azure OpenAI. |
+| **C1** | The platform's users have exactly two AI services: **GitHub Copilot** (Business; agent mode in VS Code and Copilot CLI) and **Azure OpenAI** (deployment `gpt-6.1-sol`). **Claude Code** is also supported, optionally, for `/accel-setup` only (ADR-0009); nothing requires it. Product code calls models only through `accel_core.gateway`, which supports only Azure OpenAI. |
 | **C2** | **MCP servers are local stdio only:** REA and `accel-mcp`. No remote, hosted or third-party MCP servers. |
 | **C3** | **No Copilot cloud agent.** Generated assets target agent mode in VS Code and Copilot CLI. |
 | **C4** | **VS Code preview features are off.** Nothing may depend on one, such as installing from the skills marketplace. |
