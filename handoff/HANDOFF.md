@@ -49,6 +49,7 @@ uv run make test-live NEEDS=rea,ghidra UV=uv        # real install in Docker; ~2
 ## Decisions and assumptions
 
 - Docker is used on Windows because install.sh targets macOS and Linux; the platform's users are on macOS and Linux.
+- Gokul decided (2026-11-10) not to add native Windows support for REA. REA's Windows mode is experimental, analyzes only PE, DOS and 6502 binaries (not ELF or Mach-O), and needs the native add-on from the npm package. Windows developers run REA through Docker. Revisit only with an ADR.
 - `--check` exits 1 when not ready, matching the CLI's "checks failed" code. Usage errors exit 1, since spec/02 reserves 2 to 5.
 - CLI exit mapping from install.sh: 2→3 (prerequisite), 3, 4 and 5→4 (external failure).
 - Downloads are deleted after extraction (Ghidra is 570 MB). Each install run writes a log to `$ACCEL_HOME/logs/`; the idempotency check excludes it.
