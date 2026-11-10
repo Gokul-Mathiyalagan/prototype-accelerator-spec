@@ -223,6 +223,7 @@ def test_rea_mcp_starts_reas_mcp_server_with_rea_env(out: Path) -> None:
         "node /accel/linux/tools/rea/scripts/rea.mjs mcp",
         "GHIDRA_INSTALL_DIR=/accel/linux/tools/ghidra",
         "REA_GHIDRA_STARTUP_TIMEOUT_MS=900000",
+        "LC_ALL=C.UTF-8",  # the container has no locale, so the launcher picks UTF-8
     ]
 
 

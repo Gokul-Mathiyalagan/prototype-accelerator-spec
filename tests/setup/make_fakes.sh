@@ -24,6 +24,7 @@ if [ "\${1:-}" = "--version" ]; then echo v$node_v; exit 0; fi
 printf 'node %s\n' "\$*"
 printf 'GHIDRA_INSTALL_DIR=%s\n' "\${GHIDRA_INSTALL_DIR:-}"
 printf 'REA_GHIDRA_STARTUP_TIMEOUT_MS=%s\n' "\${REA_GHIDRA_STARTUP_TIMEOUT_MS:-}"
+printf 'LC_ALL=%s\n' "\${LC_ALL:-}"
 EOF
   cat >"$dir/bin/npm" <<'EOF'
 #!/usr/bin/env bash

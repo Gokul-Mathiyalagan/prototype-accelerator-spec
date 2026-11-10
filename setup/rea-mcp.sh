@@ -16,4 +16,9 @@ set -a
 # shellcheck source=/dev/null
 source "$ACCEL_HOME/rea.env"
 set +a
+# Java takes file-name encoding from the locale; REA needs UTF-8 for non-ASCII paths.
+case "${LC_ALL:-${LC_CTYPE:-${LANG:-}}}" in
+  *UTF-8* | *utf-8* | *UTF8* | *utf8*) ;;
+  *) if [ "$(uname -s)" = Linux ]; then export LC_ALL=C.UTF-8; fi ;;
+esac
 exec "$node" "$rea" mcp

@@ -396,6 +396,15 @@ with_toolchain() {
     "$@"
 }
 
+# Java takes its file-name encoding from the locale, and REA uses non-ASCII temp paths.
+# On Linux without a UTF-8 locale, fall back to C.UTF-8. macOS Java always uses UTF-8.
+ensure_utf8_locale() {
+  case "${LC_ALL:-${LC_CTYPE:-${LANG:-}}}" in
+    *UTF-8* | *utf-8* | *UTF8* | *utf8*) return 0 ;;
+  esac
+  if [ "$(uname -s)" = Linux ]; then export LC_ALL=C.UTF-8; fi
+}
+
 # ── Commands ───────────────────────────────────────────────────────────────────
 
 command_check() {
@@ -498,6 +507,7 @@ command_verify() {
     # shellcheck source=/dev/null
     . "$ACCEL_HOME/rea.env"
     set +a
+    ensure_utf8_locale
     cd "$TOOLS/rea" && with_toolchain quiet npm run verify:ghidra
   ); then
     fail 5 "REA's Ghidra check failed. See the log above."
