@@ -1,15 +1,15 @@
 # Handoff
 
-- **Updated:** 2026-11-10 19:53 IST
+- **Updated:** 2026-11-10 20:05 IST
 - **Agent:** claude-code
-- **Active task:** T-004 Azure OpenAI gateway, redaction and audit log
-- **Task status:** review
-- **Branch:** task/T-004-azure-gateway
-- **Last commit:** 98ae2ac T-004: add Azure OpenAI gateway, redaction, audit and FakeGateway
+- **Active task:** none
+- **Task status:** done
+- **Branch:** main
+- **Last commit:** 5d28cbf T-004: handoff
 
 ## Summary
 
-The gateway is built and tested offline. It uses API key auth per ADR-0008, redacts every outbound message, audits every call without content, and enforces budgets. The one live test (a tool-calling round trip against Azure) is written but hasn't run, because no `.env` exists yet. `make check` passes with 253 tests.
+T-004 is merged into `main` and done at Gokul's request, with the live test deferred. The gateway is built and tested offline. It uses API key auth per ADR-0008, redacts every outbound message, audits every call without content, and enforces budgets. The one live test (a tool-calling round trip against Azure) is written but hasn't run, because no `.env` exists yet. `make check` passes with 253 tests.
 
 ## Acceptance criteria
 
@@ -31,8 +31,8 @@ The gateway is built and tested offline. It uses API key auth per ADR-0008, reda
 
 ## Next step
 
-1. Gokul copies `.env.example` to `.env`, fills in the endpoint, key and deployment, then runs `uv run make test-live NEEDS=azure`. Expect 1 passed (about 2 calls and under 4,000 tokens).
-2. If it passes, Gokul merges `task/T-004-azure-gateway` and sets T-004 `done`. If the API version rejects `reasoning_effort` or `tool_choice`, raise `OPENAI_API_VERSION` in `.env`; nothing else should need to change.
+1. Claim T-007 (fixture repos), the first eligible task this machine can run. T-005 needs REA and Ghidra.
+2. Deferred: once `.env` exists, run `uv run make test-live NEEDS=azure` (expect 1 passed). If the API version rejects `reasoning_effort` or `tool_choice`, raise `OPENAI_API_VERSION` in `.env`.
 
 ## How to verify
 
