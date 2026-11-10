@@ -115,7 +115,7 @@ Prepared: 2026-11-20T10:02Z · runtime: ok · REA: ok · native binaries: 2 (1 l
 
 `accel extract --batch <git-url>` runs all stages without Copilot. Stage 6 is a small agent loop in `extract.investigate` that:
 
-- calls `gpt-6.1-sol` through `accel_core.gateway` (chat completions with tool calling, Entra ID);
+- calls `gpt-6.1-sol` through `accel_core.gateway` (chat completions with tool calling, API key auth);
 - offers the same tools: code-graph queries and file reads locally, REA through an MCP client to the local stdio server, and `submit_finding`, whose arguments must match the finding schema;
 - enforces each playbook's `budget` (turns and cost), and logs every call to the audit log;
 - uses high reasoning effort for investigation and low effort for summarizing.

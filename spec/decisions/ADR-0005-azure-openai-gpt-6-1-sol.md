@@ -4,6 +4,7 @@
 - **Date:** 2026-11-10
 - **Decided by:** gokul
 - **Task:** T-000
+- **Amended by:** ADR-0008 (authentication uses a deployment API key, not Entra ID)
 
 ## Context
 
@@ -11,7 +12,7 @@ Besides Copilot, the only AI service officially available to the users is Azure 
 
 ## Decision
 
-Product code calls models only through `accel_core.gateway`, which uses the `openai` package's `AzureOpenAI` client with Microsoft Entra ID (`DefaultAzureCredential`). It's used for skill drafting, eval grading and batch extraction. A CI guard rejects any other model SDK or endpoint (spec/06).
+Product code calls models only through `accel_core.gateway`, which uses the `openai` package's `AzureOpenAI` client, authenticated as ADR-0008 describes. It's used for skill drafting, eval grading and batch extraction. A CI guard rejects any other model SDK or endpoint (spec/06).
 
 ## Alternatives considered
 

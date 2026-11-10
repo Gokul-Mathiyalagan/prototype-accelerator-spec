@@ -68,12 +68,14 @@ tasks:
   phase: 0
   title: Azure OpenAI gateway, redaction and audit log
   goal: The only path from product code to a model, with redaction, budgets and auditing built in.
-  spec: [spec/00-overview.md#hard-constraints, spec/01-architecture.md#configuration, spec/06-security.md]
+  spec: [spec/00-overview.md#hard-constraints, spec/01-architecture.md#configuration, spec/06-security.md, spec/decisions/ADR-0008-azure-openai-api-key-auth.md]
   depends_on: [T-001, T-003]
   needs: [azure]
-  paths: [packages/accel-core/src/accel_core/gateway/, packages/accel-core/src/accel_core/redaction/, packages/accel-core/src/accel_core/audit/, packages/accel-core/src/accel_core/testing/]
+  paths: [packages/accel-core/src/accel_core/gateway/, packages/accel-core/src/accel_core/redaction/, packages/accel-core/src/accel_core/audit/, packages/accel-core/src/accel_core/testing/, .env.example]
   acceptance:
-    - "Gateway uses openai.AzureOpenAI with azure-identity DefaultAzureCredential; API keys are rejected"
+    - "Gateway uses openai.AzureOpenAI with API key auth (ADR-0008): azure_endpoint from AZURE_OPENAI_ENDPOINT, api_key from AZURE_OPENAI_API_KEY, deployment from AZURE_OPENAI_DEPLOYMENT_NAME (default gpt-6.1-sol), api_version from OPENAI_API_VERSION (default from accel.toml)"
+    - "A missing endpoint or key raises a typed config error naming the variable; an api_key in accel.toml is rejected; the key never appears in logs, audit lines or error messages"
+    - ".env.example lists the four variables with placeholder values only"
     - "Supports chat completions with tool calling and structured output (JSON Schema from a contract model), reasoning effort, and streaming off by default"
     - "Redaction runs on every outbound message: secrets (gitleaks-style patterns) and personal data (emails, phone numbers, employee IDs) are replaced with typed placeholders"
     - "Per-call and per-run budgets (tokens, cost) raise BudgetExceeded"

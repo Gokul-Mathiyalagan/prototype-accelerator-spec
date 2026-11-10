@@ -1,10 +1,9 @@
 # Copy to accel.toml (gitignored). Environment variables override these values.
 [azure_openai]
-# Supply AZURE_OPENAI_ENDPOINT for your organization; never put credentials here.
-deployment = "gpt-6.1-sol"
-api_version = "2024-10-21"
-# Authentication uses Microsoft Entra ID through DefaultAzureCredential.
-# API keys are not supported.
+# Set AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY in your environment or a
+# gitignored .env file (see ADR-0008). Never put the API key here.
+deployment = "gpt-6.1-sol"     # overridden by AZURE_OPENAI_DEPLOYMENT_NAME
+api_version = "2024-10-21"     # overridden by OPENAI_API_VERSION
 
 [accel]
 home = "~/.accel"

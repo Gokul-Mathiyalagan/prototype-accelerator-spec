@@ -28,7 +28,7 @@ T-003 is done and merged into `main` (fast-forward) at Gokul's request; no task 
 ## Next step
 
 1. Follow `start-session` on `main` and claim the next eligible task: T-004 (Azure OpenAI gateway; needs `azure`), T-108 (playbooks) or T-201 (catalog), all of which depend only on done tasks.
-2. For T-004: Gokul will set up Azure access later. The gateway uses Entra ID (`DefaultAzureCredential`) and rejects API keys, so build and test it offline against `FakeGateway` and mark the round-trip test `live_azure`.
+2. For T-004: the gateway authenticates with a deployment API key, per ADR-0008 (accepted), not Entra ID. Gokul will add his Azure values to a local `.env` later. Until then, build and test offline against `FakeGateway` and mark the round-trip test `live_azure`.
 
 ## How to verify
 
@@ -49,6 +49,7 @@ Expected: 185 passed and 1 skipped (the symlink-escape test skips on Windows wit
 ## Spec changes
 
 - Wording fix in `spec/03-skill-factory.md#evals`: the example rubric moved its weights out of YAML comments into `{criterion, weight}` items, to match `EvalCase`.
+- ADR-0008 (accepted by Gokul): Azure OpenAI auth uses a deployment API key instead of Entra ID. Updated ADR-0005, spec/01 (config table now lists `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_DEPLOYMENT_NAME` and `OPENAI_API_VERSION`; `azure-identity` dropped), spec/02 (batch mode), spec/06 (C1), `accel.toml.example`, and T-004's acceptance criteria.
 
 ## Open questions for Gokul
 

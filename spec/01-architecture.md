@@ -98,9 +98,9 @@ accel-registry/
 | Setting | Env var | Default |
 |---|---|---|
 | Azure OpenAI endpoint | `AZURE_OPENAI_ENDPOINT` | none (required for batch mode, the skill writer and grading) |
-| Deployment | `AZURE_OPENAI_DEPLOYMENT` | `gpt-6.1-sol` |
-| API version | `AZURE_OPENAI_API_VERSION` | pinned in `accel.toml.example` |
-| Auth | (none) | Microsoft Entra ID via `DefaultAzureCredential`; API keys aren't supported |
+| API key | `AZURE_OPENAI_API_KEY` | none (required with the endpoint). Environment or gitignored `.env` only, never `accel.toml` (ADR-0008) |
+| Deployment | `AZURE_OPENAI_DEPLOYMENT_NAME` | `gpt-6.1-sol` |
+| API version | `OPENAI_API_VERSION` | pinned in `accel.toml.example` |
 | Accel home | `ACCEL_HOME` | `~/.accel` |
 | Download mirror | `ACCEL_MIRROR` | none (direct downloads) |
 | Registry | `ACCEL_REGISTRY` | git URL of `accel-registry` |
@@ -116,7 +116,7 @@ accel-registry/
 | Code graph | SQLite, one file per repo |
 | Runtime evidence | REA at a pinned commit, Node as pinned by REA, Ghidra 12.1.4, JDK 21 |
 | Browser automation | Playwright with Chromium |
-| Model access | `openai` package's `AzureOpenAI` client, plus `azure-identity` |
+| Model access | `openai` package's `AzureOpenAI` client, with API key auth |
 | MCP | Official MCP Python SDK: the stdio server for `accel-mcp`, and the client for REA in batch mode |
 | Checks | ESLint, Stylelint, Spectral, Semgrep, gitleaks, axe-core |
 | Mock backends | Prism for OpenAPI, REA environments for HAR |
