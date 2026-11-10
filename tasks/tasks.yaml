@@ -143,9 +143,9 @@ tasks:
     - "Contains a planted fake secret and fake personal data that redaction must remove"
     - "native-sdk-sample: a tiny C library built to a .so/.dylib with a permissive license file, plus a Python ctypes caller; and a second binary with a no-reverse-engineering license"
     - "Expected findings for each playbook are written down in tests/fixtures/repos/<repo>/EXPECTED.md for later golden tests"
-  status: review
+  status: done
   owner: claude-code
-  progress: "All criteria met: both fixtures, EXPECTED.md checked by tests, planted data caught by redaction, Docker build/run with mock IdP passes; 346 offline tests pass."
+  progress: "Merged into main at Gokul's request; both fixtures, EXPECTED.md validated by tests, Docker build/run with mock IdP; 346 offline tests pass."
 
 - id: T-008
   phase: 0

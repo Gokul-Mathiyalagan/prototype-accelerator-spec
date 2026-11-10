@@ -1,10 +1,10 @@
 # Handoff
 
-- **Updated:** 2026-11-10 22:05 IST
+- **Updated:** 2026-11-10 22:15 IST
 - **Agent:** claude-code
-- **Active task:** T-007 Fixture repos
-- **Task status:** review
-- **Branch:** task/T-007-fixture-repos
+- **Active task:** none
+- **Task status:** done
+- **Branch:** main
 - **Last commit:** 73d1086 T-007: EXPECTED.md, fixture tests, redaction fix for prefixed secrets
 
 ## Summary
@@ -29,7 +29,7 @@ Both fixture repos are built and tested. `fastapi-react-sso` builds in Docker (v
 
 ## Next step
 
-1. Gokul reviews and merges `task/T-007-fixture-repos`, then sets T-007 `done`.
+1. T-007 is merged into `main` and done.
 2. Push `main`: it has ADR-0009 (`0dc1ed6`), which is unpushed and already merged into this branch.
 3. Next eligible tasks: T-006 (setup assets for Copilot and Claude Code, per ADR-0009), T-108 (playbooks), T-201 (catalog). T-101+ can now use these fixtures.
 
