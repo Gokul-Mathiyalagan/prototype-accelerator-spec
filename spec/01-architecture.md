@@ -101,6 +101,7 @@ accel-registry/
 | API key | `AZURE_OPENAI_API_KEY` | none (required with the endpoint). Environment or gitignored `.env` only, never `accel.toml` (ADR-0008) |
 | Deployment | `AZURE_OPENAI_DEPLOYMENT_NAME` | `gpt-6.1-sol` |
 | API version | `OPENAI_API_VERSION` | pinned in `accel.toml.example` |
+| Token prices | (`accel.toml` only: `input_usd_per_mtok`, `output_usd_per_mtok`) | none; cost budgets need both set |
 | Accel home | `ACCEL_HOME` | `~/.accel` |
 | Download mirror | `ACCEL_MIRROR` | none (direct downloads) |
 | Registry | `ACCEL_REGISTRY` | git URL of `accel-registry` |
