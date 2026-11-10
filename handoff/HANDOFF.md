@@ -2,9 +2,9 @@
 
 - **Updated:** 2026-11-10 22:00 IST
 - **Agent:** claude-code
-- **Active task:** none
-- **Task status:** done
-- **Branch:** main
+- **Active task:** T-007 Fixture repos
+- **Task status:** in_progress
+- **Branch:** task/T-007-fixture-repos
 - **Last commit:** 53a23ee T-005: fix verify:ghidra on Linux with a UTF-8 locale preload
 
 ## Summary

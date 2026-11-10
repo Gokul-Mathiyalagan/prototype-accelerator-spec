@@ -140,9 +140,9 @@ tasks:
     - "Contains a planted fake secret and fake personal data that redaction must remove"
     - "native-sdk-sample: a tiny C library built to a .so/.dylib with a permissive license file, plus a Python ctypes caller; and a second binary with a no-reverse-engineering license"
     - "Expected findings for each playbook are written down in tests/fixtures/repos/<repo>/EXPECTED.md for later golden tests"
-  status: todo
-  owner: null
-  progress: ""
+  status: in_progress
+  owner: claude-code
+  progress: "Claimed; writing fastapi-react-sso and native-sdk-sample fixtures."
 
 - id: T-008
   phase: 0
