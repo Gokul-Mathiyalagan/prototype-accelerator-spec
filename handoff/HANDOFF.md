@@ -5,7 +5,7 @@
 - **Active task:** T-008 Spike: REA tools from Copilot and from Python
 - **Task status:** review
 - **Branch:** task/T-008-rea-spike
-- **Last commit:** 0179b27 T-008: wip REA reference, HAR fixture, Python MCP spike test
+- **Last commit:** 94c044e T-008: REA reference doc, live Python MCP spike, bundle-analysis limit
 
 ## Summary
 
