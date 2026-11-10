@@ -31,7 +31,7 @@
     },
     "JdkPin": {
       "additionalProperties": false,
-      "description": "Temurin JDK 21.",
+      "description": "Temurin JDK 21, as Adoptium names the release (for example `21.0.13+9`).",
       "properties": {
         "sha256": {
           "additionalProperties": {
@@ -54,7 +54,7 @@
           "type": "string"
         },
         "version": {
-          "pattern": "^21(\\.\\d+)*$",
+          "pattern": "^21(\\.\\d+)*(\\+\\d+)?$",
           "title": "Version",
           "type": "string"
         }
