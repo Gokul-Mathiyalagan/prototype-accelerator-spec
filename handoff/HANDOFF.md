@@ -1,15 +1,15 @@
 # Handoff
 
-- **Updated:** 2026-11-10 17:33 IST
+- **Updated:** 2026-11-10 18:33 IST
 - **Agent:** codex
-- **Active task:** T-001 Repo scaffold and quality gates
-- **Task status:** review
-- **Branch:** task/T-001-scaffold
-- **Last commit:** fec5571 T-001: Enforce offline quality gates and CI
+- **Active task:** none
+- **Task status:** done
+- **Branch:** main
+- **Last commit:** a99f8a6 T-001: handoff
 
 ## Summary
 
-Initialized Git and committed the existing specification on `main` with Gokul's authorization. T-001 is implemented and ready for review: nine typed packages, locked development tools, all quality gates, CI, and PowerShell-compatible commands. The full check passes with 34 offline tests and 100% line coverage in each scaffold package.
+Merged T-001 into `main` at Gokul's request and marked it done. The existing `task/T-001-scaffold` branch is retained as a backup of the verified implementation. The full check passes with 34 offline tests and 100% line coverage in each scaffold package; no task is active.
 
 ## Acceptance criteria
 
@@ -23,6 +23,8 @@ Initialized Git and committed the existing specification on `main` with Gokul's 
 
 ## State of the active task
 
+T-001 is done. T-002 is the next eligible task and has not been claimed.
+
 - `pyproject.toml`, `uv.lock` and `packages/*`: Python 3.12 workspace, Hatchling builds, explicit internal dependencies.
 - `scripts/dev.py` and `Makefile`: shared target implementation, per-package coverage enforcement and live-resource opt-in.
 - `.importlinter`, `.semgrep/ai-endpoints.yml`, `.pre-commit-config.yaml` and `.github/workflows/ci.yml`: quality policies, installed local hooks and CI.
@@ -30,9 +32,9 @@ Initialized Git and committed the existing specification on `main` with Gokul's 
 
 ## Next step
 
-1. Gokul: review `git diff main...task/T-001-scaffold`, run `uv run make check`, and merge T-001 into main if satisfied.
-2. Gokul: set T-001 to done in `tasks/tasks.yaml` after merging.
-3. Next agent: claim T-002 on `task/T-002-handoff-tooling`; add the validation-rule tests in `tests/dev/` specified in T-002.
+1. Follow the start-session skill on `main`; read T-002 in `tasks/tasks.yaml`, `AGENTS.md` and `tasks/README.md`.
+2. Create `task/T-002-handoff-tooling` from `main`, set T-002 in_progress with an owner, and commit `T-002: claim`.
+3. Add the validation-rule tests in `tests/dev/` specified by T-002; verify handoff hooks, CI failures and skill-mirror enforcement.
 
 ## How to verify
 
@@ -48,6 +50,7 @@ Expected: 34 tests pass; every package has 100% scaffold coverage; 8 import cont
 ## Decisions and assumptions
 
 - Used existing GitHub Desktop Git rather than installing Git globally; no remote is configured.
+- The requested local merge was a fast-forward; the task branch remains at a99f8a6 as the backup.
 - uv provisions Python 3.12.13 independently of the installed Anaconda Python 3.9.
 - Windows gets GNU Make through the locked gnumake development dependency; all platforms share the Python runner.
 - schemas reports T-003's pending generator; golden and live targets explicitly report no selected tests until later tasks add them.

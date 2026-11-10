@@ -25,9 +25,9 @@ tasks:
     - "The AI-endpoint guard (spec/06) fails on a planted 'import anthropic' in a test fixture package, and passes on the real tree"
     - "CI workflow runs make check on push and pull request"
     - ".gitignore covers work/, knowledge/, .venv, and build outputs"
-  status: review
+  status: done
   owner: codex
-  progress: "Nine typed packages, locked tools, CI and quality gates complete; 34 offline tests pass with per-package coverage; ready for review."
+  progress: "Merged into main at Gokul's request; nine typed packages, CI and quality gates complete; 34 offline tests pass."
 
 - id: T-002
   phase: 0
