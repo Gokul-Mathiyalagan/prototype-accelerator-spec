@@ -7,11 +7,10 @@ These tests need Docker and are skipped without it.
 
 from __future__ import annotations
 
-import hashlib
 import json
 import re
-import shutil
 import subprocess
+from collections.abc import Callable
 from pathlib import Path
 
 import pytest
@@ -24,37 +23,9 @@ INSTALL = ROOT / "setup" / "install.sh"
 REA_MCP = ROOT / "setup" / "rea-mcp.sh"
 
 
-def _docker_ready() -> bool:
-    docker = shutil.which("docker")
-    if docker is None:
-        return False
-    return subprocess.run([docker, "info"], capture_output=True, check=False).returncode == 0
-
-
-def image_tag(dockerfile: Path) -> str:
-    """Tag a test image by the hash of its Dockerfile, so edits rebuild it."""
-    digest = hashlib.sha256(dockerfile.read_bytes()).hexdigest()[:12]
-    return f"accel-{dockerfile.stem.lower()}-test:{digest}"
-
-
-def build_image(dockerfile: Path) -> str:
-    """Build the image unless it already exists; return its tag."""
-    tag = image_tag(dockerfile)
-    exists = subprocess.run(["docker", "image", "inspect", tag], capture_output=True, check=False)
-    if exists.returncode != 0:
-        subprocess.run(
-            ["docker", "build", "-q", "-t", tag, "-f", str(dockerfile), str(dockerfile.parent)],
-            check=True,
-            capture_output=True,
-        )
-    return tag
-
-
 @pytest.fixture(scope="session")
-def out(tmp_path_factory: pytest.TempPathFactory) -> Path:
-    if not _docker_ready():
-        pytest.skip("Docker isn't available; the install.sh container tests need it")
-    tag = build_image(HERE / "Dockerfile")
+def out(tmp_path_factory: pytest.TempPathFactory, docker_image: Callable[[Path], str]) -> Path:
+    tag = docker_image(HERE / "Dockerfile")
     results = tmp_path_factory.mktemp("setup-scenarios")
     subprocess.run(
         [
