@@ -1,15 +1,15 @@
 # Handoff
 
-- **Updated:** 2026-11-11 00:20 IST
+- **Updated:** 2026-11-11 00:35 IST
 - **Agent:** claude-code
-- **Active task:** T-008 Spike: REA tools from Copilot and from Python
-- **Task status:** review
-- **Branch:** task/T-008-rea-spike
-- **Last commit:** 94c044e T-008: REA reference doc, live Python MCP spike, bundle-analysis limit
+- **Active task:** none
+- **Task status:** done
+- **Branch:** main
+- **Last commit:** 671928c T-008: handoff
 
 ## Summary
 
-`spec/reference/rea-tools.md` documents REA's 253 MCP tools and 194 CLI commands at the pinned commit, plus what the spike observed. From Python (MCP SDK over stdio, with REA in Docker), REA analyzed a recorded HAR, the permissive native library (exports, and Ghidra decompilation of `tm_clamp`) and the fixture's built bundle; the live test passes. The big finding: REA's static JS analysis can't process the fixture's minified React bundle. The VS Code agent-mode part is Gokul's.
+`spec/reference/rea-tools.md` documents REA's 253 MCP tools and 194 CLI commands at the pinned commit, plus what the spike observed. From Python (MCP SDK over stdio, with REA in Docker), REA analyzed a recorded HAR, the permissive native library (exports, and Ghidra decompilation of `tm_clamp`) and the fixture's built bundle; the live test passes. The big finding: REA's static JS analysis can't process the fixture's minified React bundle. T-008 is merged into `main` and done at Gokul's request; the VS Code agent-mode run is deferred to the macOS list.
 
 ## Acceptance criteria
 
@@ -29,8 +29,7 @@
 ## Next step
 
 1. Gokul, in VS Code agent mode with `rea` running: ask Copilot to analyze `tests/fixtures/har/fastapi-react-sso.har` (inspect_web_network_capture), the `libtinymath.so` library (inspect_native_exports, then open_binary and analyze_function on `tm_clamp`), and the fixture's built bundle. Record the results in a session log. This can run on macOS with the T-006 checks.
-2. Then merge `task/T-008-rea-spike` and set T-008 `done`.
-3. Phase 0 still has T-009. Phase 1 (T-101 onward) waits for the phase 0 gate in spec/08.
+2. Phase 0 still has T-009. Phase 1 (T-101 onward) waits for the phase 0 gate in spec/08.
 
 ## How to verify
 
