@@ -60,9 +60,9 @@ tasks:
     - "make schemas writes schemas/<name>.schema.json; CI fails on drift between models and committed schemas"
     - "Each spec/05 example validates; at least one invalid fixture per contract is rejected with a clear error"
     - "Finding validation enforces non-empty evidence, id format <playbook>.<slug>, and confidence enum; path existence is a separate function that takes a repo root"
-  status: todo
-  owner: null
-  progress: ""
+  status: in_progress
+  owner: claude-code
+  progress: "Claimed; building contract models."
 
 - id: T-004
   phase: 0
