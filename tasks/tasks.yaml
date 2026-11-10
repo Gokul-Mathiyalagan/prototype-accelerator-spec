@@ -1,0 +1,919 @@
+# Build tasks for Prototype Accelerator.
+# Field reference: tasks/README.md. Validate with: python3 scripts/handoff_check.py
+#
+# status:   todo | in_progress | blocked | review | done
+# owner:    null | claude-code | codex | antigravity | gokul
+# needs:    azure | copilot | rea | ghidra | work-repos   (outside resources for live verification)
+
+tasks:
+
+# ───────────────────────── Phase 0 · Foundations and spikes (week 1) ─────────────────────────
+
+- id: T-001
+  phase: 0
+  title: Repo scaffold and quality gates
+  goal: A uv workspace with the nine packages, tooling, and CI, so every later task has a green baseline.
+  spec: [spec/01-architecture.md#packages, spec/01-architecture.md#platform-repo-layout, spec/07-conventions.md]
+  depends_on: []
+  needs: []
+  paths: [pyproject.toml, uv.lock, Makefile, packages/, .pre-commit-config.yaml, .github/workflows/ci.yml, .importlinter, .semgrep/, accel.toml.example, .gitignore]
+  acceptance:
+    - "uv workspace with the nine packages from spec/01, each with src/ layout, py.typed, and a smoke test"
+    - "Makefile targets: setup, check, test, test-live, schemas, golden, handoff-check, sync-agent-files"
+    - "make check runs ruff, pyright strict, import-linter (the import rules in spec/01), shellcheck, the AI-endpoint Semgrep guard, and pytest -m 'not live'; it passes"
+    - "pytest markers live_azure, live_copilot, live_rea, live_ghidra, live_work_repos are registered and skipped by default"
+    - "The AI-endpoint guard (spec/06) fails on a planted 'import anthropic' in a test fixture package, and passes on the real tree"
+    - "CI workflow runs make check on push and pull request"
+    - ".gitignore covers work/, knowledge/, .venv, and build outputs"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-002
+  phase: 0
+  title: Dev handoff tooling in CI
+  goal: Make the multi-agent handoff protocol enforceable, not just documented.
+  spec: [AGENTS.md, tasks/README.md]
+  depends_on: [T-001]
+  needs: []
+  paths: [scripts/handoff_check.py, scripts/sync_agent_files.py, .pre-commit-config.yaml, .github/workflows/ci.yml, tests/dev/]
+  acceptance:
+    - "make handoff-check and make sync-agent-files wrap the two scripts"
+    - "CI fails if .claude/skills/ differs from .agents/skills/ (sync_agent_files.py --check)"
+    - "CI fails if tasks.yaml is invalid (unknown status or need, missing acceptance, unknown dependency, cycle, or a done task with a not-done dependency)"
+    - "A pre-commit hook runs handoff_check.py when tasks/ or handoff/ change"
+    - "Tests in tests/dev/ cover each handoff_check rule with good and bad fixtures"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-003
+  phase: 0
+  title: Contract models and generated schemas
+  goal: Every file format in spec/05 exists as a Pydantic model with a generated JSON Schema and fixtures.
+  spec: [spec/05-cli-and-contracts.md#contracts, spec/02-repo-intelligence.md, spec/03-skill-factory.md, spec/04-aisdlc.md]
+  depends_on: [T-001]
+  needs: []
+  paths: [packages/accel-core/src/accel_core/contracts/, schemas/, tests/core/test_contracts.py, tests/fixtures/contracts/]
+  acceptance:
+    - "Models exist for all 14 contracts in spec/05, each with schema_version, extra='forbid'"
+    - "make schemas writes schemas/<name>.schema.json; CI fails on drift between models and committed schemas"
+    - "Each spec/05 example validates; at least one invalid fixture per contract is rejected with a clear error"
+    - "Finding validation enforces non-empty evidence, id format <playbook>.<slug>, and confidence enum; path existence is a separate function that takes a repo root"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-004
+  phase: 0
+  title: Azure OpenAI gateway, redaction and audit log
+  goal: The only path from product code to a model, with redaction, budgets and auditing built in.
+  spec: [spec/00-overview.md#hard-constraints, spec/01-architecture.md#configuration, spec/06-security.md]
+  depends_on: [T-001, T-003]
+  needs: [azure]
+  paths: [packages/accel-core/src/accel_core/gateway/, packages/accel-core/src/accel_core/redaction/, packages/accel-core/src/accel_core/audit/, packages/accel-core/src/accel_core/testing/]
+  acceptance:
+    - "Gateway uses openai.AzureOpenAI with azure-identity DefaultAzureCredential; API keys are rejected"
+    - "Supports chat completions with tool calling and structured output (JSON Schema from a contract model), reasoning effort, and streaming off by default"
+    - "Redaction runs on every outbound message: secrets (gitleaks-style patterns) and personal data (emails, phone numbers, employee IDs) are replaced with typed placeholders"
+    - "Per-call and per-run budgets (tokens, cost) raise BudgetExceeded"
+    - "Every call writes an audit line (time, caller, purpose, deployment, token counts, cost, redaction counts), never the content"
+    - "FakeGateway in accel_core.testing replays recorded responses for unit tests"
+    - "A live_azure test makes one tool-calling round trip against gpt-6.1-sol"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-005
+  phase: 0
+  title: REA installer, versions.lock and launcher
+  goal: A deterministic, idempotent installer that Copilot can run for the user (C5).
+  spec: [spec/02-repo-intelligence.md#setup-accel-setup-c5, spec/06-security.md]
+  depends_on: [T-001]
+  needs: [rea, ghidra]
+  paths: [setup/versions.lock, setup/install.sh, setup/rea-mcp.sh, packages/accel-cli/src/accel_cli/commands/setup.py, tests/setup/]
+  acceptance:
+    - "versions.lock pins the REA commit, Node, Temurin JDK 21 and Ghidra 12.1.4 with SHA-256 for darwin-arm64, darwin-x64 and linux-x64"
+    - "install.sh --check --json prints valid install-check JSON; install, verify subcommands follow the spec/02 contract and exit codes"
+    - "Installs only under $ACCEL_HOME, no sudo, no shell-profile edits; checksum mismatch exits 3; ACCEL_MIRROR replaces hosts only"
+    - "Builds the arm64 decompiler on Apple Silicon; skips it elsewhere"
+    - "Re-running after success changes nothing and exits 0"
+    - "rea-mcp.sh starts REA's MCP server from $ACCEL_HOME and fails with a clear message if setup hasn't run"
+    - "accel setup and accel doctor wrap the script with --json output"
+    - "shellcheck clean; a Linux container test runs --check end to end with downloads faked; a live_rea test runs the full install and npm run verify:ghidra"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-006
+  phase: 0
+  title: Copilot setup assets for /accel-setup
+  goal: Users run /accel-setup in VS Code and Copilot installs REA, troubleshoots, and proves it works.
+  spec: [spec/02-repo-intelligence.md#setup-accel-setup-c5, spec/07-conventions.md#copilot-assets-product]
+  depends_on: [T-005]
+  needs: [copilot, rea]
+  paths: [.github/agents/accel-setup.agent.md, .github/prompts/accel-setup.prompt.md, .github/skills/rea-setup/, .github/copilot-instructions.md, .vscode/mcp.json, docs/setup.md]
+  acceptance:
+    - "accel-setup agent may run setup/install.sh and the rea-setup skill's fixes only; its instructions say to stop and ask for anything else"
+    - "/accel-setup runs check, explains what's missing, installs with approvals, verifies, asks the user to start the rea server, then calls one REA tool"
+    - "/accel-setup update moves to new pins in versions.lock"
+    - "rea-setup skill covers: wrong JAVA_HOME, missing arm64 decompiler, proxy or mirror, Node mismatch, Gatekeeper quarantine, MCP server not starting, registry enforcement"
+    - ".vscode/mcp.json registers rea (via rea-mcp.sh) and accel with ${workspaceFolder} paths only"
+    - "Frontmatter of all assets is valid YAML with name and description"
+    - "Live check (Gokul, VS Code): on a laptop without REA, /accel-setup reaches a working REA tool call; result recorded in a session log"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-007
+  phase: 0
+  title: Fixture repos
+  goal: Small synthetic target repos so every extraction stage can be tested offline.
+  spec: [spec/07-conventions.md#tests]
+  depends_on: [T-001]
+  needs: []
+  paths: [tests/fixtures/repos/fastapi-react-sso/, tests/fixtures/repos/native-sdk-sample/]
+  acceptance:
+    - "fastapi-react-sso: FastAPI service with OIDC-style token middleware and role mapping, SQLAlchemy models, an LLM client call through an Azure gateway pattern, a React app with routes, a component library, design tokens, and tests; builds and runs with a mock identity provider"
+    - "Contains a planted fake secret and fake personal data that redaction must remove"
+    - "native-sdk-sample: a tiny C library built to a .so/.dylib with a permissive license file, plus a Python ctypes caller; and a second binary with a no-reverse-engineering license"
+    - "Expected findings for each playbook are written down in tests/fixtures/repos/<repo>/EXPECTED.md for later golden tests"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-008
+  phase: 0
+  title: "Spike: REA tools from Copilot and from Python"
+  goal: Learn REA's real tool names, inputs and outputs, and prove both access paths.
+  spec: [spec/02-repo-intelligence.md#rea-and-ghidra-rules]
+  depends_on: [T-005, T-006, T-007]
+  needs: [rea, ghidra, copilot]
+  paths: [spec/reference/rea-tools.md, tests/extract/test_rea_spike.py]
+  acceptance:
+    - "spec/reference/rea-tools.md lists REA's MCP tools and CLI subcommands at the pinned commit, with inputs, outputs and limits observed"
+    - "From VS Code agent mode, REA analyzes the fixture's built bundle, a HAR, and the permissive native binary"
+    - "From Python (MCP SDK client over stdio), the same three analyses succeed; a live_rea test covers it"
+    - "Confirms whether node scripts/rea.mjs accepts the same subcommands as the rea CLI; result recorded"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-009
+  phase: 0
+  title: "Spike: credit cost per playbook, Copilot vs batch"
+  goal: Measure what one playbook costs in Copilot AI credits and in Azure spend, to set defaults.
+  spec: [spec/02-repo-intelligence.md#extraction-in-copilot-accel-extract-git-url, spec/06-security.md#risks]
+  depends_on: [T-004, T-008]
+  needs: [copilot, azure, rea, work-repos]
+  paths: [spec/decisions/, handoff/log/]
+  acceptance:
+    - "Runs the auth-sso playbook by hand in Copilot agent mode and in a minimal batch loop on one reference repo"
+    - "Records AI credits used, Azure tokens and cost, wall time, and finding quality for each"
+    - "Proposes an ADR on extraction defaults (models, one chat per playbook, when to use batch mode), and records the open decisions it settles"
+  status: todo
+  owner: null
+  progress: ""
+
+# ───────────────────────── Phase 1 · Repo Intelligence (weeks 2–4) ─────────────────────────
+
+- id: T-101
+  phase: 1
+  title: Acquire stage
+  goal: Clone a target repo at a pinned commit, redact it, and record licenses.
+  spec: [spec/02-repo-intelligence.md#extraction-stages, spec/06-security.md#controls]
+  depends_on: [T-003, T-004, T-007]
+  needs: []
+  paths: [packages/accel-extract/src/accel_extract/acquire/, tests/extract/test_acquire.py]
+  acceptance:
+    - "Clones into work/<repo>@<sha>/ at the given ref (default HEAD, resolved to a SHA)"
+    - "Runs gitleaks; replaces secrets and personal data in the working copy; writes acquire.json with counts, never values"
+    - "Detects the repo license and each vendored binary's license file or header; marks binaries as analyzable or not (C8)"
+    - "Fixture test: the planted secret and personal data are gone; the restrictive binary is marked not analyzable"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-102
+  phase: 1
+  title: Inventory stage
+  goal: Know what the repo is made of before any analysis.
+  spec: [spec/02-repo-intelligence.md#extraction-stages]
+  depends_on: [T-101]
+  needs: []
+  paths: [packages/accel-extract/src/accel_extract/inventory/, tests/extract/test_inventory.py]
+  acceptance:
+    - "Reads package.json, pyproject.toml, requirements*.txt, pom.xml for languages, frameworks and versions"
+    - "Finds build, test, CI, Dockerfile, infrastructure, OpenAPI files and environment variables"
+    - "Detects ELF, PE and Mach-O binaries by magic bytes, skipping node_modules, .venv and other installed-package folders"
+    - "Writes repo-profile.json and the native-inventory.json skeleton; golden test on both fixtures"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-103
+  phase: 1
+  title: Static code graph
+  goal: A queryable SQLite graph of symbols, imports and calls for Python and TypeScript/JavaScript.
+  spec: [spec/02-repo-intelligence.md#extraction-stages, spec/01-architecture.md#tech-stack]
+  depends_on: [T-102]
+  needs: []
+  paths: [packages/accel-extract/src/accel_extract/static/, tests/extract/test_static_graph.py]
+  acceptance:
+    - "tree-sitter parsers for Python, TypeScript, TSX and JavaScript"
+    - "Graph tables: files, symbols, imports, calls, each with path and line"
+    - "Query API: symbol, callers, callees, by path; used later by query_code_graph"
+    - "Handles a 5,000-file repo in under two minutes on a laptop (benchmark test, skipped in CI)"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-104
+  phase: 1
+  title: Framework adapters
+  goal: Add the framework-level facts that skills need.
+  spec: [spec/02-repo-intelligence.md#extraction-stages]
+  depends_on: [T-103]
+  needs: []
+  paths: [packages/accel-extract/src/accel_extract/static/adapters/, tests/extract/test_adapters.py]
+  acceptance:
+    - "FastAPI and Express routes (method, path, handler, path:line)"
+    - "React components with props, and route definitions"
+    - "SQLAlchemy models and migrations"
+    - "LLM client calls, prompt files and tool definitions"
+    - "Golden test on fastapi-react-sso"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-105
+  phase: 1
+  title: Runtime build, run and route walk
+  goal: Run the app locally with synthetic data and capture screenshots and a HAR.
+  spec: [spec/02-repo-intelligence.md#extraction-stages, spec/06-security.md#controls]
+  depends_on: [T-102]
+  needs: []
+  paths: [packages/accel-extract/src/accel_extract/runtime/, docker/build-runner/, tests/extract/test_runtime.py]
+  acceptance:
+    - "Builds the app in a local container (Docker or Podman) using its own scripts; falls back to runtime-skipped with a reason"
+    - "Swaps sign-in for the mock identity provider and seeds synthetic data"
+    - "Playwright walks routes from the static graph, saves desktop and mobile screenshots, and records a HAR"
+    - "Container network is limited to package registries during build and none during run"
+    - "Works end to end on fastapi-react-sso"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-106
+  phase: 1
+  title: HAR sanitizer
+  goal: No auth material or personal data survives into HAR files that REA or a model sees.
+  spec: [spec/06-security.md#controls]
+  depends_on: [T-105]
+  needs: []
+  paths: [packages/accel-extract/src/accel_extract/runtime/har.py, tests/extract/test_har.py]
+  acceptance:
+    - "Removes Authorization, Cookie and Set-Cookie headers, bearer tokens in bodies and query strings, and personal data patterns"
+    - "Keeps structure, status codes, timings and redirect chains"
+    - "Property-based tests with generated HARs"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-107
+  phase: 1
+  title: REA wrapper and Ghidra runs
+  goal: Call REA deterministically for bundle analysis, HAR environments and native binaries.
+  spec: [spec/02-repo-intelligence.md#rea-and-ghidra-rules]
+  depends_on: [T-008, T-106]
+  needs: [rea, ghidra]
+  paths: [packages/accel-extract/src/accel_extract/rea/, tests/extract/test_rea.py]
+  acceptance:
+    - "Wraps the REA CLI subcommands recorded in spec/reference/rea-tools.md, with typed results"
+    - "Builds an REA environment from the sanitized HAR into knowledge/<repo>/env/"
+    - "Runs Ghidra only on binaries marked analyzable (C8), with the timeouts from rea.env; results cached by SHA-256"
+    - "FakeRea for unit tests; live_rea and live_ghidra tests on the fixtures"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-108
+  phase: 1
+  title: Playbooks
+  goal: The eleven playbooks, ready for Copilot and batch mode.
+  spec: [spec/02-repo-intelligence.md#playbooks, spec/05-cli-and-contracts.md#playbook]
+  depends_on: [T-003]
+  needs: []
+  paths: [playbooks/]
+  acceptance:
+    - "Eleven playbooks (YAML plus prompt.md) matching the spec/02 table, each validating against the playbook schema"
+    - "Each prompt states the questions, the evidence rules, how to call submit_finding, and what goes to unknowns"
+    - "include_when rules let extract prepare skip irrelevant playbooks"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-109
+  phase: 1
+  title: accel extract prepare and extract-plan.md
+  goal: One command runs stages 1 to 5 and leaves a resumable checklist.
+  spec: [spec/02-repo-intelligence.md#extraction-in-copilot-accel-extract-git-url, spec/05-cli-and-contracts.md#commands]
+  depends_on: [T-101, T-102, T-104, T-105, T-107, T-108]
+  needs: []
+  paths: [packages/accel-extract/src/accel_extract/plan.py, packages/accel-cli/src/accel_cli/commands/extract.py]
+  acceptance:
+    - "accel extract prepare <git-url> [--ref] [--no-runtime] runs stages 1 to 5 and supports --json"
+    - "Writes extract-plan.md with only the playbooks whose include_when matches"
+    - "Re-running resumes: completed stages are skipped unless --force"
+    - "Golden test on fastapi-react-sso with runtime and REA faked"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-110
+  phase: 1
+  title: accel-mcp v0 for extraction
+  goal: The two extraction tools the investigator agent needs.
+  spec: [spec/04-aisdlc.md#accel-mcp-tools, spec/05-cli-and-contracts.md#finding]
+  depends_on: [T-003, T-103]
+  needs: []
+  paths: [packages/accel-mcp/, tests/mcp/]
+  acceptance:
+    - "Local stdio MCP server (MCP Python SDK) started with uv run accel-mcp"
+    - "query_code_graph supports symbol, callers, callees, routes and components"
+    - "submit_finding validates the schema, checks every static path and line exists in work/<repo>@<sha>/, rejects duplicates, and appends to findings.jsonl"
+    - "Tests drive the server through an MCP client in-process"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-111
+  phase: 1
+  title: Investigator agent and /accel-extract
+  goal: Users run extraction from Copilot in VS Code.
+  spec: [spec/02-repo-intelligence.md#extraction-in-copilot-accel-extract-git-url]
+  depends_on: [T-109, T-110]
+  needs: [copilot, rea]
+  paths: [.github/agents/investigator.agent.md, .github/prompts/accel-extract.prompt.md, docs/extract.md]
+  acceptance:
+    - "investigator agent's tools: rea, accel query_code_graph and submit_finding, file read, terminal"
+    - "/accel-extract <git-url> runs prepare, works through unchecked playbooks, ticks them off, and runs verify at the end"
+    - "Instructions tell the user to start a fresh chat per playbook, and the agent resumes from extract-plan.md"
+    - "Live check (Gokul): one playbook on fastapi-react-sso in VS Code produces findings that pass submit_finding"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-112
+  phase: 1
+  title: Batch investigator
+  goal: The same playbooks without Copilot, on Azure OpenAI, for re-runs.
+  spec: [spec/02-repo-intelligence.md#batch-mode]
+  depends_on: [T-004, T-108, T-110]
+  needs: [azure, rea]
+  paths: [packages/accel-extract/src/accel_extract/investigate/]
+  acceptance:
+    - "Agent loop over the gateway with tool calling: code graph, file read, REA via MCP client, submit_finding"
+    - "Enforces each playbook's budget; logs every call to the audit log"
+    - "accel extract --batch <git-url> runs all stages"
+    - "Unit tests with FakeGateway and FakeRea; a live_azure test runs one playbook"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-113
+  phase: 1
+  title: Verify stage and confidence scoring
+  goal: Only evidence-backed findings survive.
+  spec: [spec/02-repo-intelligence.md#confidence]
+  depends_on: [T-110]
+  needs: []
+  paths: [packages/accel-extract/src/accel_extract/verify/]
+  acceptance:
+    - "Re-checks every static path:line at the commit; matches runtime claims to a HAR entry or screenshot"
+    - "Drops unsupported claims, logging why; applies the high, medium and low rules from spec/02"
+    - "Moves unresolved questions to unknowns.md"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-114
+  phase: 1
+  title: Knowledge model writer
+  goal: Write every knowledge model file in spec/02.
+  spec: [spec/02-repo-intelligence.md#knowledge-model-knowledgerepo]
+  depends_on: [T-113]
+  needs: []
+  paths: [packages/accel-extract/src/accel_extract/knowledge/]
+  acceptance:
+    - "Writes manifest.json, repo-profile.json, architecture.md with a Mermaid diagram, findings.jsonl, api/openapi.reconstructed.yaml, ui-inventory.json, ai-inventory.json, native-inventory.json and unknowns.md"
+    - "accel extract verify <repo> runs stages 7 and 8"
+    - "Golden test on fastapi-react-sso"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-115
+  phase: 1
+  title: Phase 1 gate on reference repos
+  goal: Prove Engine 1 on real code.
+  spec: [spec/08-roadmap.md]
+  depends_on: [T-111, T-112, T-114]
+  needs: [copilot, azure, rea, work-repos]
+  paths: [handoff/log/]
+  acceptance:
+    - "Copilot extracts two reference repos end to end with /accel-extract"
+    - "Every kept finding has valid evidence; Gokul spot-checks 20 findings per repo and records the accuracy"
+    - "Credits and Azure cost per repo recorded; issues filed as new tasks"
+  status: todo
+  owner: null
+  progress: ""
+
+# ───────────────────────── Phase 2 · Skill Factory (weeks 5–7) ─────────────────────────
+
+- id: T-201
+  phase: 2
+  title: Catalog and emission rules
+  goal: The 35-skill catalog as data.
+  spec: [spec/03-skill-factory.md#default-catalog-35-skills-in-8-groups, spec/05-cli-and-contracts.md#catalog-entry]
+  depends_on: [T-003]
+  needs: []
+  paths: [catalog/taxonomy.yaml, packages/accel-skills/src/accel_skills/catalog/]
+  acceptance:
+    - "taxonomy.yaml holds all 35 skills in 8 groups with nature, emit_when, owner and checks"
+    - "Loader validates it against the catalog-entry schema; a test checks the count and groups match spec/03"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-202
+  phase: 2
+  title: Skill planner
+  goal: Decide which skills a knowledge model yields.
+  spec: [spec/03-skill-factory.md#steps]
+  depends_on: [T-201, T-114]
+  needs: []
+  paths: [packages/accel-skills/src/accel_skills/planner/]
+  acceptance:
+    - "Applies emission rules and minimum confidence; outputs a skill plan with the findings for each skill"
+    - "A front-end-only fixture yields no backend skills"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-203
+  phase: 2
+  title: Skill writer
+  goal: Draft SKILL.md and its folder from findings.
+  spec: [spec/03-skill-factory.md#skill-folder]
+  depends_on: [T-202, T-004]
+  needs: [azure]
+  paths: [packages/accel-skills/src/accel_skills/writer/, packages/accel-skills/src/accel_skills/templates/]
+  acceptance:
+    - "Generates SKILL.md (frontmatter, numbered rules with reasons, steps, Done when), templates/, reference/ and provenance.yaml through the gateway with structured output"
+    - "Golden tests with FakeGateway; a live_azure test drafts sso-auth from the fixture"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-204
+  phase: 2
+  title: Generalizer
+  goal: Skills carry patterns, not a project's specifics.
+  spec: [spec/03-skill-factory.md#steps]
+  depends_on: [T-203]
+  needs: []
+  paths: [packages/accel-skills/src/accel_skills/generalize/]
+  acceptance:
+    - "Strips project names, hostnames, secrets, people and real data; turns literals into {{parameters}}"
+    - "With several repos, keeps only consensus or majority patterns"
+    - "A test proves no fixture-specific names survive"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-205
+  phase: 2
+  title: Check generator
+  goal: Each standard skill ships a check that proves its rules.
+  spec: [spec/03-skill-factory.md#skill-folder]
+  depends_on: [T-203]
+  needs: []
+  paths: [packages/accel-skills/src/accel_skills/checks_gen/]
+  acceptance:
+    - "Generates Semgrep, Spectral, ESLint or Stylelint configs, or small scripts, per skill"
+    - "Each check passes on a known-good fixture and fails on a known-bad one"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-206
+  phase: 2
+  title: Eval generator
+  goal: Each skill ships 5 to 10 eval prompts with rubrics.
+  spec: [spec/03-skill-factory.md#evals]
+  depends_on: [T-203]
+  needs: [azure]
+  paths: [packages/accel-skills/src/accel_skills/evals_gen/]
+  acceptance:
+    - "Generates eval-case files that validate against the schema, with weighted rubrics and a fixture reference"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-207
+  phase: 2
+  title: Skill validator
+  goal: Nothing malformed or unsafe reaches review.
+  spec: [spec/03-skill-factory.md#skill-folder, spec/06-security.md]
+  depends_on: [T-203]
+  needs: []
+  paths: [packages/accel-skills/src/accel_skills/validate/]
+  acceptance:
+    - "Lints frontmatter (name equals folder, description no more than 1,024 characters), the size cap, and no external links"
+    - "Scans for injected instructions, unknown URLs, secrets and personal data"
+    - "Runs the skill's checks against its fixtures"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-208
+  phase: 2
+  title: Registry repo and review PRs
+  goal: Owners approve skills through normal pull requests.
+  spec: [spec/03-skill-factory.md#registry-and-delivery]
+  depends_on: [T-207]
+  needs: [work-repos]
+  paths: [packages/accel-skills/src/accel_skills/registry/, docs/registry.md]
+  acceptance:
+    - "A template for accel-registry: CODEOWNERS, standards/, skills/, a release workflow that tags skills/<name>/v<semver>"
+    - "accel skills build opens one PR per skill with gh, including findings and the validation report"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-209
+  phase: 2
+  title: Packager, skills sync and asset lint
+  goal: Approved skills reach a project's .github/skills/ at pinned versions.
+  spec: [spec/03-skill-factory.md#registry-and-delivery, spec/04-aisdlc.md#copilot-assets-in-a-generated-project]
+  depends_on: [T-208]
+  needs: []
+  paths: [packages/accel-package/]
+  acceptance:
+    - "accel skills sync resolves skills, copies them into .github/skills/, and writes skills.lock"
+    - "Generates AGENTS.md and copilot-instructions.md from skill fragments, plus the custom agents and prompt files for workflow skills"
+    - "accel package --lint validates frontmatter, name and folder match, and rejects url-type MCP servers (C2)"
+    - "dist/ also gets a portable .agents/skills/ build"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-210
+  phase: 2
+  title: Phase 2 gate
+  goal: Prove skills are trusted and load in Copilot.
+  spec: [spec/08-roadmap.md]
+  depends_on: [T-209, T-115]
+  needs: [copilot, work-repos]
+  paths: [handoff/log/]
+  acceptance:
+    - "Owners approve the first 10 skills in the registry"
+    - "Copilot loads them in VS Code agent mode and Copilot CLI (verified by asking it to use one)"
+  status: todo
+  owner: null
+  progress: ""
+
+# ───────────────────────── Phase 3 · AISDLC core (weeks 8–10) ─────────────────────────
+
+- id: T-301
+  phase: 3
+  title: Blueprint and accel init
+  goal: A new project, wired for Copilot, in one command.
+  spec: [spec/04-aisdlc.md#generated-project-layout]
+  depends_on: [T-209]
+  needs: []
+  paths: [blueprints/internal-data-app/, packages/accel-sdlc/src/accel_sdlc/scaffold/]
+  acceptance:
+    - "internal-data-app: React and TypeScript web, FastAPI service, mock identity provider, Prism, sample data adapter"
+    - "accel init writes the project, aisdlc/ with project.yaml, Copilot assets, .vscode/mcp.json and the CI workflow, then runs skills sync"
+    - "The generated project passes accel check --level mock out of the box"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-302
+  phase: 3
+  title: accel-mcp full tool set and task state machine
+  goal: All twelve tools, and safe task claims.
+  spec: [spec/04-aisdlc.md#accel-mcp-tools, spec/04-aisdlc.md#tasks]
+  depends_on: [T-110, T-301]
+  needs: []
+  paths: [packages/accel-mcp/, packages/accel-sdlc/src/accel_sdlc/tasks/]
+  acceptance:
+    - "The ten workflow tools from spec/04, with schema-validated inputs and outputs"
+    - "Task state machine with claims, TTL expiry, reassignment and blocked; illegal transitions rejected"
+    - "accel task next, status and complete mirror the MCP tools"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-303
+  phase: 3
+  title: Intake and requirements
+  goal: From a conversation to an approved spec.
+  spec: [spec/04-aisdlc.md#lifecycle]
+  depends_on: [T-301]
+  needs: []
+  paths: [packages/accel-sdlc/src/accel_sdlc/intake/, blueprints/internal-data-app/.github/prompts/]
+  acceptance:
+    - "accel intake and /accel-intake produce brief.md"
+    - "The requirements-to-spec workflow produces prd.md, stories.yaml and acceptance/*.feature"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-304
+  phase: 3
+  title: HTML wireframe intake and wireframe kit
+  goal: HTML wireframes become ui-spec.json (C6).
+  spec: [spec/04-aisdlc.md#html-wireframe-intake-c6]
+  depends_on: [T-003, T-301]
+  needs: []
+  paths: [packages/accel-design/src/accel_design/intake/, wireframe-kit/]
+  acceptance:
+    - "The five intake steps from spec/04, with desktop and mobile screenshots"
+    - "data-* hints win with confidence 1.0; mappings below 0.6 are listed for Gate 2"
+    - "Missing states become open questions"
+    - "wireframe-kit/ has a starter page per pattern (dashboard, list and detail, form, chat) following the conventions"
+    - "Golden tests on the kit pages and on one unhinted wireframe"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-305
+  phase: 3
+  title: HTML mocks and mock data
+  goal: On-brand clickable mocks before any backend.
+  spec: [spec/04-aisdlc.md#lifecycle]
+  depends_on: [T-304]
+  needs: []
+  paths: [packages/accel-design/src/accel_design/mocks/]
+  acceptance:
+    - "accel design mock renders each screen with ui-components and ui-design-tokens, and synthetic data from mock-data"
+    - "Mocks pass axe-core and contain no real-looking personal data"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-306
+  phase: 3
+  title: Contract draft and mock server
+  goal: The API contract comes from the UI's data needs.
+  spec: [spec/04-aisdlc.md#lifecycle]
+  depends_on: [T-304]
+  needs: []
+  paths: [packages/accel-sdlc/src/accel_sdlc/contract/]
+  acceptance:
+    - "accel contract draft writes openapi.yaml from ui-spec data needs, following api-design"
+    - "Spectral passes; Prism serves it; the mocks can call it"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-307
+  phase: 3
+  title: accel plan
+  goal: Tasks tagged with the right skills.
+  spec: [spec/04-aisdlc.md#tasks, spec/05-cli-and-contracts.md#task-a-projects-tasksyaml]
+  depends_on: [T-302, T-306]
+  needs: []
+  paths: [packages/accel-sdlc/src/accel_sdlc/plan/]
+  acceptance:
+    - "Writes tasks.yaml with dependencies, skills, inputs, acceptance and done_when"
+    - "Every screen and operation is covered by at least one task; a test checks coverage"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-308
+  phase: 3
+  title: Maturity checks
+  goal: accel check knows what each level requires.
+  spec: [spec/04-aisdlc.md#maturity-levels]
+  depends_on: [T-301]
+  needs: []
+  paths: [packages/accel-sdlc/src/accel_sdlc/checks/]
+  acceptance:
+    - "accel check --level <level> [--scope] runs the checks from spec/04 for that level and below, and reports structured results"
+    - "Visual diff against wireframe screenshots with a per-level threshold"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-309
+  phase: 3
+  title: Gates
+  goal: Recorded approvals that go stale when artifacts change.
+  spec: [spec/04-aisdlc.md#lifecycle, spec/05-cli-and-contracts.md#gate-record]
+  depends_on: [T-302]
+  needs: []
+  paths: [packages/accel-sdlc/src/accel_sdlc/gates/]
+  acceptance:
+    - "accel gate <name> --approve writes a gate record with artifact hashes; --request names the approver"
+    - "project_status reports stale gates when an approved artifact changes"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-310
+  phase: 3
+  title: Authored workflow skills and project agents
+  goal: The eight sdlc skills, and the Copilot agents and prompts that run them.
+  spec: [spec/03-skill-factory.md#default-catalog-35-skills-in-8-groups, spec/04-aisdlc.md#copilot-assets-in-a-generated-project]
+  depends_on: [T-209]
+  needs: []
+  paths: [catalog/authored/, blueprints/internal-data-app/.github/]
+  acceptance:
+    - "requirements-to-spec, wireframe-to-ui-spec, ui-mockup, mock-data, spec-to-plan, task-execution, standards-review and release-and-gates written, validated and with evals"
+    - "spec-writer, ui-builder, api-builder and reviewer agents; accel-intake, accel-plan, accel-next-task and accel-review prompts"
+    - "Locked security and privacy rules are marked and can't be overridden"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-311
+  phase: 3
+  title: Phase 3 gate
+  goal: A pilot project reaches mock level in Copilot.
+  spec: [spec/08-roadmap.md]
+  depends_on: [T-303, T-305, T-307, T-308, T-309, T-310]
+  needs: [copilot]
+  paths: [handoff/log/]
+  acceptance:
+    - "From a brief and an HTML wireframe, a pilot project reaches mock level, with every task built in VS Code agent mode and merged through review"
+    - "Gates 1 to 3 recorded; problems filed as tasks"
+  status: todo
+  owner: null
+  progress: ""
+
+# ───────────────────────── Phase 4 · Evals and feedback (weeks 11–12) ─────────────────────────
+
+- id: T-401
+  phase: 4
+  title: Eval harness on Copilot CLI
+  goal: Measure each skill's lift where it's actually used.
+  spec: [spec/03-skill-factory.md#evals]
+  depends_on: [T-206, T-209, T-004]
+  needs: [copilot, azure]
+  paths: [packages/accel-evals/]
+  acceptance:
+    - "Runs each eval with the skill present and absent through copilot -p, captures the diff, and grades it with GPT-6.1 Sol"
+    - "Writes eval-report files; enforces the publish thresholds and ACCEL_EVAL_CREDIT_BUDGET"
+    - "--changed runs only new or changed skills"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-402
+  phase: 4
+  title: Model comparison
+  goal: Know which Copilot model to default to.
+  spec: [spec/00-overview.md#hard-constraints, spec/decisions/open-decisions.md]
+  depends_on: [T-401]
+  needs: [copilot, azure]
+  paths: [evals/reports/, spec/decisions/]
+  acceptance:
+    - "Pass rates and credits for GPT-6.1 Sol and one other enabled model (for example Claude Sonnet 5.5) across the first 10 skills"
+    - "Proposes an ADR settling 'Default model in agent mode'"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-403
+  phase: 4
+  title: Audit log and gate records report
+  goal: One place to answer who approved what, and what went to a model.
+  spec: [spec/06-security.md#controls]
+  depends_on: [T-004, T-309]
+  needs: []
+  paths: [packages/accel-core/src/accel_core/audit/, packages/accel-cli/src/accel_cli/commands/audit.py]
+  acceptance:
+    - "accel audit report summarizes model calls, setups, extractions, approvals and gates by date, user and project"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-404
+  phase: 4
+  title: Feedback loop
+  goal: Corrections in projects improve the skills.
+  spec: [spec/01-architecture.md#three-engines]
+  depends_on: [T-308, T-208]
+  needs: []
+  paths: [packages/accel-skills/src/accel_skills/feedback/]
+  acceptance:
+    - "Collects recurring check failures and review comments tagged with a skill, and proposes skill changes as registry PRs"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-405
+  phase: 4
+  title: Phase 4 gate
+  goal: Skill lift is measured.
+  spec: [spec/08-roadmap.md]
+  depends_on: [T-401, T-402, T-403, T-404]
+  needs: [copilot, azure]
+  paths: [handoff/log/]
+  acceptance:
+    - "Lift and pass rate published for every approved skill on the chosen models"
+  status: todo
+  owner: null
+  progress: ""
+
+# ───────────────────────── Phase 5 · Workbench and scale (weeks 13–14) ─────────────────────────
+
+- id: T-501
+  phase: 5
+  title: Workbench API
+  goal: A web view over projects, skills and gates.
+  spec: [spec/01-architecture.md#tech-stack]
+  depends_on: [T-309, T-401]
+  needs: []
+  paths: [apps/workbench-api/]
+  acceptance:
+    - "FastAPI read API over projects, phases, gates, tasks, skills and eval reports, with SSO via the sso-auth skill"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-502
+  phase: 5
+  title: Workbench UI
+  goal: Built with the platform's own skills.
+  spec: [spec/04-aisdlc.md]
+  depends_on: [T-501]
+  needs: []
+  paths: [apps/workbench-ui/]
+  acceptance:
+    - "React UI for project status, gate approvals and skill health, built through the AISDLC itself"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-503
+  phase: 5
+  title: Multi-repo merge
+  goal: Consensus across reference repos.
+  spec: [spec/02-repo-intelligence.md#multi-repo-merge]
+  depends_on: [T-114]
+  needs: []
+  paths: [packages/accel-extract/src/accel_extract/knowledge/merge.py]
+  acceptance:
+    - "accel extract merge marks findings consensus, majority or divergent; divergent ones become decisions, not skill input"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-504
+  phase: 5
+  title: Telemetry
+  goal: Usage and cost visible on the existing agent observability dashboard.
+  spec: [spec/01-architecture.md#tech-stack]
+  depends_on: [T-403]
+  needs: []
+  paths: [packages/accel-core/src/accel_core/telemetry/]
+  acceptance:
+    - "OpenTelemetry traces and metrics for extraction, skills, evals and AISDLC phases; no content in spans"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-505
+  phase: 5
+  title: Onboarding guide
+  goal: A new team can start without help.
+  spec: [spec/00-overview.md]
+  depends_on: [T-311]
+  needs: []
+  paths: [docs/]
+  acceptance:
+    - "docs/ covers /accel-setup, /accel-extract, accel init, the AISDLC phases and gates, and troubleshooting"
+  status: todo
+  owner: null
+  progress: ""
+
+- id: T-506
+  phase: 5
+  title: Pilot readout
+  goal: Go or no-go for wider rollout.
+  spec: [spec/08-roadmap.md]
+  depends_on: [T-405, T-502, T-505]
+  needs: [copilot, work-repos]
+  paths: [docs/pilot-readout.md]
+  acceptance:
+    - "Readout with time from brief to mock, skill lift, credits and cost, defects found at gates, and a recommendation"
+  status: todo
+  owner: null
+  progress: ""
