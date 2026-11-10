@@ -1,0 +1,5 @@
+skill: secure-coding
+group: security
+nature: [standard]
+emit_when: {always: true}
+owner: security-iam

@@ -1,0 +1,142 @@
+{
+  "$defs": {
+    "CaseResult": {
+      "additionalProperties": false,
+      "description": "Grades for one case, with the skill present and absent.",
+      "properties": {
+        "case_id": {
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*-\\d{2,}$",
+          "title": "Case Id",
+          "type": "string"
+        },
+        "with_skill": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "With Skill",
+          "type": "number"
+        },
+        "without_skill": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Without Skill",
+          "type": "number"
+        }
+      },
+      "required": [
+        "case_id",
+        "with_skill",
+        "without_skill"
+      ],
+      "title": "CaseResult",
+      "type": "object"
+    },
+    "Thresholds": {
+      "additionalProperties": false,
+      "description": "Publish thresholds from `accel.toml`.",
+      "properties": {
+        "min_lift": {
+          "default": 0.15,
+          "maximum": 1,
+          "minimum": -1,
+          "title": "Min Lift",
+          "type": "number"
+        },
+        "min_pass_rate": {
+          "default": 0.8,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Min Pass Rate",
+          "type": "number"
+        },
+        "pass_score": {
+          "default": 0.7,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Pass Score",
+          "type": "number"
+        }
+      },
+      "title": "Thresholds",
+      "type": "object"
+    }
+  },
+  "$id": "eval-report.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "`evals/reports/<skill>-<version>.json`.",
+  "properties": {
+    "cases": {
+      "items": {
+        "$ref": "#/$defs/CaseResult"
+      },
+      "minItems": 1,
+      "title": "Cases",
+      "type": "array"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "lift": {
+      "maximum": 1,
+      "minimum": -1,
+      "title": "Lift",
+      "type": "number"
+    },
+    "pass_rate_with": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Pass Rate With",
+      "type": "number"
+    },
+    "pass_rate_without": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Pass Rate Without",
+      "type": "number"
+    },
+    "passed": {
+      "title": "Passed",
+      "type": "boolean"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "description": "Contract version; bump on breaking changes.",
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "skill": {
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "title": "Skill",
+      "type": "string"
+    },
+    "stopped_early": {
+      "default": false,
+      "description": "True when the credit budget ended the run.",
+      "title": "Stopped Early",
+      "type": "boolean"
+    },
+    "thresholds": {
+      "$ref": "#/$defs/Thresholds"
+    },
+    "version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "skill",
+    "version",
+    "generated_at",
+    "cases",
+    "pass_rate_with",
+    "pass_rate_without",
+    "lift",
+    "passed"
+  ],
+  "title": "EvalReport",
+  "type": "object"
+}

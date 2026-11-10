@@ -123,10 +123,10 @@ Each `evals/<n>.yaml` holds one prompt:
 id: sso-auth-03
 prompt: Add a protected /reports route to the FastAPI service that only the analyst role can reach.
 fixture: blueprints/internal-data-app        # repo state the eval starts from
-rubric:
-  - Uses the shared token validation dependency, not a new one   # weight 0.4
-  - Maps the analyst role through the role-mapping config        # weight 0.4
-  - Adds a test for the 403 case                                 # weight 0.2
+rubric:                                      # weights sum to 1
+  - {criterion: "Uses the shared token validation dependency, not a new one", weight: 0.4}
+  - {criterion: "Maps the analyst role through the role-mapping config", weight: 0.4}
+  - {criterion: "Adds a test for the 403 case", weight: 0.2}
 ```
 
 `accel skills eval` runs each prompt in Copilot CLI with the skill folder present and then absent:

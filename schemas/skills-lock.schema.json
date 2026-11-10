@@ -1,0 +1,59 @@
+{
+  "$defs": {
+    "LockedSkill": {
+      "additionalProperties": false,
+      "description": "One skill pinned by version and registry commit.",
+      "properties": {
+        "commit": {
+          "pattern": "^[0-9a-f]{7,40}$",
+          "title": "Commit",
+          "type": "string"
+        },
+        "version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "commit"
+      ],
+      "title": "LockedSkill",
+      "type": "object"
+    }
+  },
+  "$id": "skills-lock.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A project's `skills.lock`, written by `accel skills sync`.",
+  "properties": {
+    "registry": {
+      "minLength": 1,
+      "title": "Registry",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "description": "Contract version; bump on breaking changes.",
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "skills": {
+      "patternProperties": {
+        "^[a-z0-9]+(-[a-z0-9]+)*$": {
+          "$ref": "#/$defs/LockedSkill"
+        }
+      },
+      "title": "Skills",
+      "type": "object"
+    }
+  },
+  "required": [
+    "registry",
+    "skills"
+  ],
+  "title": "SkillsLock",
+  "type": "object"
+}

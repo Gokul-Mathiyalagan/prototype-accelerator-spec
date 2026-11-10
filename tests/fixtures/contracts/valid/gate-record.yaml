@@ -1,0 +1,9 @@
+schema_version: 1
+gate: plan
+level: prototype
+approved_by: "@tech-lead"
+approved_at: 2026-12-06T11:00:00Z
+commit: 5e6f7a8
+artifacts:
+  - {path: aisdlc/04-contract/openapi.yaml, sha256: 3f1c9a7e5b2d4f6081a3c5e7f9b1d3e5a7c9e1f3b5d7f9a1c3e5b7d9f1a3c5e7}
+  - {path: aisdlc/05-plan/tasks.yaml, sha256: 3f1c9a7e5b2d4f6081a3c5e7f9b1d3e5a7c9e1f3b5d7f9a1c3e5b7d9f1a3c5e7}

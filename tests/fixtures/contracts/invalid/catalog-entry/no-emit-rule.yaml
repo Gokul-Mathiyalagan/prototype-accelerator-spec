@@ -1,0 +1,5 @@
+skill: api-design
+group: api
+nature: [standard]
+emit_when: {min_confidence: medium}
+owner: architecture

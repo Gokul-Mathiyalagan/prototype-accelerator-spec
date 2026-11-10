@@ -1,0 +1,3 @@
+registry: git@github.com:example-org/accel-registry.git
+skills:
+  sso-auth: {version: latest, commit: 4b1e9d0}

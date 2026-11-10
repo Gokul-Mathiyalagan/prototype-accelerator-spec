@@ -1,0 +1,10 @@
+skill: sso-auth
+version: 1.2.0
+catalog_version: 1
+owner: security-iam
+sources:
+  - repo: ebi-atlas-api
+    commit: 9f3c2e1
+    findings: [auth-sso.token-validation, auth-sso.role-mapping]
+generated_by: {tool: accel-skills, version: 0.3.0, model: gpt-6.1-sol}
+approved_by: {github: "@security-lead", pr: 42, date: 2026-12-02}

@@ -1,0 +1,1 @@
+{"id": "auth-sso.token-validation", "playbook": "auth-sso", "claim": "Tokens are validated in middleware.", "evidence": [], "confidence": "high", "recorded_by": "copilot:gpt-6.1-sol"}

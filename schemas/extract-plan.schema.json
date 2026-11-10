@@ -1,0 +1,79 @@
+{
+  "$id": "extract-plan.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "The YAML header of `knowledge/<repo>/extract-plan.md`.\n\nThe markdown checklist below the header records progress; the header records how\nthe plan was prepared and which playbooks it includes.",
+  "properties": {
+    "commit": {
+      "pattern": "^[0-9a-f]{7,40}$",
+      "title": "Commit",
+      "type": "string"
+    },
+    "native_binaries": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Native Binaries",
+      "type": "integer"
+    },
+    "native_binaries_licensed": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Native Binaries Licensed",
+      "type": "integer"
+    },
+    "playbooks": {
+      "items": {
+        "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Playbooks",
+      "type": "array"
+    },
+    "prepared_at": {
+      "format": "date-time",
+      "title": "Prepared At",
+      "type": "string"
+    },
+    "rea": {
+      "enum": [
+        "ok",
+        "skipped",
+        "failed"
+      ],
+      "title": "Rea",
+      "type": "string"
+    },
+    "repo": {
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "title": "Repo",
+      "type": "string"
+    },
+    "runtime": {
+      "enum": [
+        "ok",
+        "skipped",
+        "failed"
+      ],
+      "title": "Runtime",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "description": "Contract version; bump on breaking changes.",
+      "title": "Schema Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "repo",
+    "commit",
+    "prepared_at",
+    "runtime",
+    "rea",
+    "playbooks"
+  ],
+  "title": "ExtractPlan",
+  "type": "object"
+}

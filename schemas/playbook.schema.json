@@ -1,0 +1,139 @@
+{
+  "$defs": {
+    "Budget": {
+      "additionalProperties": false,
+      "description": "Limits for one playbook run. Cost applies in batch mode.",
+      "properties": {
+        "max_cost_usd": {
+          "exclusiveMinimum": 0,
+          "title": "Max Cost Usd",
+          "type": "number"
+        },
+        "max_turns": {
+          "exclusiveMinimum": 0,
+          "title": "Max Turns",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "max_turns",
+        "max_cost_usd"
+      ],
+      "title": "Budget",
+      "type": "object"
+    },
+    "IncludeWhen": {
+      "additionalProperties": false,
+      "description": "Inventory signals that make a playbook worth running; any one is enough.",
+      "properties": {
+        "inventory": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9]*(_[a-z0-9]+)*$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Inventory",
+          "type": "array"
+        }
+      },
+      "required": [
+        "inventory"
+      ],
+      "title": "IncludeWhen",
+      "type": "object"
+    }
+  },
+  "$id": "playbook.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "`playbooks/<id>.yaml`.",
+  "properties": {
+    "budget": {
+      "$ref": "#/$defs/Budget"
+    },
+    "evidence": {
+      "items": {
+        "enum": [
+          "static",
+          "runtime"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Evidence",
+      "type": "array"
+    },
+    "feeds": {
+      "items": {
+        "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Feeds",
+      "type": "array"
+    },
+    "id": {
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "title": "Id",
+      "type": "string"
+    },
+    "include_when": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/IncludeWhen"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Omit to include the playbook for every repo."
+    },
+    "output": {
+      "const": "finding",
+      "title": "Output",
+      "type": "string"
+    },
+    "questions": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Questions",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "description": "Contract version; bump on breaking changes.",
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "tools": {
+      "items": {
+        "enum": [
+          "code_graph",
+          "read_file",
+          "rea",
+          "terminal"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Tools",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "questions",
+    "evidence",
+    "tools",
+    "budget",
+    "output",
+    "feeds"
+  ],
+  "title": "Playbook",
+  "type": "object"
+}

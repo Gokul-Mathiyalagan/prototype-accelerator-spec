@@ -104,16 +104,13 @@ def check() -> None:
     )
     run(sys.executable, "scripts/handoff_check.py")
     run(sys.executable, "scripts/sync_agent_files.py", "--check")
+    run(sys.executable, "scripts/generate_schemas.py", "--check")
     offline_tests(coverage=True)
 
 
 def schemas() -> None:
-    """Regenerate contracts once T-003 provides their generator."""
-    generator = ROOT / "scripts" / "generate_schemas.py"
-    if generator.exists():
-        run(sys.executable, str(generator))
-    else:
-        print("No contract models yet; T-003 adds scripts/generate_schemas.py.", flush=True)
+    """Regenerate schemas/*.json from the contract models."""
+    run(sys.executable, "scripts/generate_schemas.py")
 
 
 def main() -> None:

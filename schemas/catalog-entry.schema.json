@@ -1,0 +1,120 @@
+{
+  "$defs": {
+    "EmitWhen": {
+      "additionalProperties": false,
+      "description": "When the skills planner emits a skill.\n\nEither `always`, or a playbook finding and/or an inventory signal at or above\n`min_confidence`.",
+      "properties": {
+        "always": {
+          "default": false,
+          "title": "Always",
+          "type": "boolean"
+        },
+        "inventory": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9]*(_[a-z0-9]+)*$",
+            "type": "string"
+          },
+          "title": "Inventory",
+          "type": "array"
+        },
+        "min_confidence": {
+          "default": "medium",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Min Confidence",
+          "type": "string"
+        },
+        "playbook": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Playbook"
+        }
+      },
+      "title": "EmitWhen",
+      "type": "object"
+    }
+  },
+  "$id": "catalog-entry.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One skill in `catalog/taxonomy.yaml`.",
+  "properties": {
+    "checks": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Checks",
+      "type": "array"
+    },
+    "emit_when": {
+      "$ref": "#/$defs/EmitWhen"
+    },
+    "group": {
+      "enum": [
+        "foundation",
+        "ui",
+        "api",
+        "security",
+        "backend",
+        "ai",
+        "delivery",
+        "sdlc"
+      ],
+      "title": "Group",
+      "type": "string"
+    },
+    "nature": {
+      "items": {
+        "enum": [
+          "standard",
+          "workflow",
+          "generator",
+          "reference",
+          "review"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Nature",
+      "type": "array"
+    },
+    "owner": {
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "title": "Owner",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "description": "Contract version; bump on breaking changes.",
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "skill": {
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "title": "Skill",
+      "type": "string"
+    }
+  },
+  "required": [
+    "skill",
+    "group",
+    "nature",
+    "emit_when",
+    "owner"
+  ],
+  "title": "CatalogEntry",
+  "type": "object"
+}

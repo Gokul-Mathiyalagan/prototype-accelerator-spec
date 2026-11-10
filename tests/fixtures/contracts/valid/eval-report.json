@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "skill": "sso-auth",
+  "version": "1.2.0",
+  "generated_at": "2026-12-03T08:00:00+05:30",
+  "cases": [
+    {"case_id": "sso-auth-01", "with_skill": 0.9, "without_skill": 0.4},
+    {"case_id": "sso-auth-02", "with_skill": 0.8, "without_skill": 0.75},
+    {"case_id": "sso-auth-03", "with_skill": 0.7, "without_skill": 0.2},
+    {"case_id": "sso-auth-04", "with_skill": 0.95, "without_skill": 0.5},
+    {"case_id": "sso-auth-05", "with_skill": 0.6, "without_skill": 0.3}
+  ],
+  "pass_rate_with": 0.8,
+  "pass_rate_without": 0.2,
+  "lift": 0.6,
+  "passed": true
+}

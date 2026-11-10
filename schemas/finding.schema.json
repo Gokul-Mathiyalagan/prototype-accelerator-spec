@@ -1,0 +1,194 @@
+{
+  "$defs": {
+    "RuntimeEvidence": {
+      "additionalProperties": false,
+      "description": "An observation from the running app: a HAR entry or a screenshot.",
+      "properties": {
+        "entry": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "HAR entry index",
+          "title": "Entry"
+        },
+        "kind": {
+          "const": "runtime",
+          "title": "Kind",
+          "type": "string"
+        },
+        "note": {
+          "minLength": 1,
+          "title": "Note",
+          "type": "string"
+        },
+        "path": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Screenshot path",
+          "title": "Path"
+        },
+        "source": {
+          "enum": [
+            "har",
+            "screenshot"
+          ],
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "source",
+        "note"
+      ],
+      "title": "RuntimeEvidence",
+      "type": "object"
+    },
+    "StaticEvidence": {
+      "additionalProperties": false,
+      "description": "A file and line in the redacted clone at a pinned commit.",
+      "properties": {
+        "commit": {
+          "pattern": "^[0-9a-f]{7,40}$",
+          "title": "Commit",
+          "type": "string"
+        },
+        "kind": {
+          "const": "static",
+          "title": "Kind",
+          "type": "string"
+        },
+        "line": {
+          "minimum": 1,
+          "title": "Line",
+          "type": "integer"
+        },
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "repo": {
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "title": "Repo",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "repo",
+        "path",
+        "line",
+        "commit"
+      ],
+      "title": "StaticEvidence",
+      "type": "object"
+    }
+  },
+  "$id": "finding.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One line of `findings.jsonl`.",
+  "properties": {
+    "claim": {
+      "minLength": 1,
+      "title": "Claim",
+      "type": "string"
+    },
+    "confidence": {
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "title": "Confidence",
+      "type": "string"
+    },
+    "evidence": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "runtime": "#/$defs/RuntimeEvidence",
+            "static": "#/$defs/StaticEvidence"
+          },
+          "propertyName": "kind"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/StaticEvidence"
+          },
+          {
+            "$ref": "#/$defs/RuntimeEvidence"
+          }
+        ]
+      },
+      "minItems": 1,
+      "title": "Evidence",
+      "type": "array"
+    },
+    "feeds_skills": {
+      "items": {
+        "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+        "type": "string"
+      },
+      "title": "Feeds Skills",
+      "type": "array"
+    },
+    "id": {
+      "description": "<playbook>.<slug>, unique per repo",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*\\.[a-z0-9]+(-[a-z0-9]+)*$",
+      "title": "Id",
+      "type": "string"
+    },
+    "playbook": {
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "title": "Playbook",
+      "type": "string"
+    },
+    "recorded_by": {
+      "pattern": "^(copilot|batch):[A-Za-z0-9._-]+$",
+      "title": "Recorded By",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "description": "Contract version; bump on breaking changes.",
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "unknowns": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Unknowns",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "playbook",
+    "claim",
+    "evidence",
+    "confidence",
+    "recorded_by"
+  ],
+  "title": "Finding",
+  "type": "object"
+}

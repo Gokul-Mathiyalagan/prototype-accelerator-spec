@@ -1,0 +1,238 @@
+{
+  "$defs": {
+    "Action": {
+      "additionalProperties": false,
+      "description": "A button or link on a screen.",
+      "properties": {
+        "kind": {
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "kind"
+      ],
+      "title": "Action",
+      "type": "object"
+    },
+    "ComponentMapping": {
+      "additionalProperties": false,
+      "description": "A wireframe element mapped to an approved component.",
+      "properties": {
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "maps_to": {
+          "minLength": 1,
+          "title": "Maps To",
+          "type": "string"
+        },
+        "wireframe": {
+          "description": "CSS selector in the wireframe",
+          "minLength": 1,
+          "title": "Wireframe",
+          "type": "string"
+        }
+      },
+      "required": [
+        "wireframe",
+        "maps_to",
+        "confidence"
+      ],
+      "title": "ComponentMapping",
+      "type": "object"
+    },
+    "DataNeed": {
+      "additionalProperties": false,
+      "description": "An entity a screen shows or edits.",
+      "properties": {
+        "entity": {
+          "pattern": "^[A-Z][A-Za-z0-9]*$",
+          "title": "Entity",
+          "type": "string"
+        },
+        "fields": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Fields",
+          "type": "array"
+        }
+      },
+      "required": [
+        "entity",
+        "fields"
+      ],
+      "title": "DataNeed",
+      "type": "object"
+    },
+    "Screen": {
+      "additionalProperties": false,
+      "description": "One screen of the wireframe.",
+      "properties": {
+        "actions": {
+          "items": {
+            "$ref": "#/$defs/Action"
+          },
+          "title": "Actions",
+          "type": "array"
+        },
+        "components": {
+          "items": {
+            "$ref": "#/$defs/ComponentMapping"
+          },
+          "title": "Components",
+          "type": "array"
+        },
+        "data": {
+          "items": {
+            "$ref": "#/$defs/DataNeed"
+          },
+          "title": "Data",
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "open_questions": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Open Questions",
+          "type": "array"
+        },
+        "pattern": {
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "title": "Pattern",
+          "type": "string"
+        },
+        "regions": {
+          "items": {
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+            "type": "string"
+          },
+          "title": "Regions",
+          "type": "array"
+        },
+        "route": {
+          "pattern": "^/[A-Za-z0-9_:./-]*$",
+          "title": "Route",
+          "type": "string"
+        },
+        "screenshots": {
+          "$ref": "#/$defs/Screenshots"
+        },
+        "states": {
+          "items": {
+            "enum": [
+              "loading",
+              "empty",
+              "error",
+              "no-access"
+            ],
+            "type": "string"
+          },
+          "title": "States",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "route",
+        "pattern",
+        "screenshots"
+      ],
+      "title": "Screen",
+      "type": "object"
+    },
+    "Screenshots": {
+      "additionalProperties": false,
+      "description": "Wireframe screenshots at desktop (1440 px) and mobile (390 px) widths.",
+      "properties": {
+        "desktop": {
+          "minLength": 1,
+          "title": "Desktop",
+          "type": "string"
+        },
+        "mobile": {
+          "minLength": 1,
+          "title": "Mobile",
+          "type": "string"
+        }
+      },
+      "required": [
+        "desktop",
+        "mobile"
+      ],
+      "title": "Screenshots",
+      "type": "object"
+    },
+    "UiSource": {
+      "additionalProperties": false,
+      "description": "The wireframe the spec came from. HTML only (C6).",
+      "properties": {
+        "kind": {
+          "const": "html",
+          "title": "Kind",
+          "type": "string"
+        },
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "path"
+      ],
+      "title": "UiSource",
+      "type": "object"
+    }
+  },
+  "$id": "ui-spec.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "`aisdlc/03-design/ui-spec.json`.",
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "description": "Contract version; bump on breaking changes.",
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "screens": {
+      "items": {
+        "$ref": "#/$defs/Screen"
+      },
+      "minItems": 1,
+      "title": "Screens",
+      "type": "array"
+    },
+    "source": {
+      "$ref": "#/$defs/UiSource"
+    }
+  },
+  "required": [
+    "source",
+    "screens"
+  ],
+  "title": "UiSpec",
+  "type": "object"
+}

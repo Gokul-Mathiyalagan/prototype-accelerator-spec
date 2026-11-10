@@ -1,0 +1,12 @@
+id: T-021
+title: Members API endpoint
+depends_on: [T-009]
+skills: [api-design, api-endpoint-scaffold]
+inputs: [aisdlc/04-contract/openapi.yaml#listMembers]
+acceptance: [aisdlc/02-requirements/acceptance/members.feature]
+done_when: ["accel check --level prototype --scope service/members"]
+status: in_review
+claimed_by: copilot@alice-laptop
+claimed_at: 2026-12-05T14:00:00+05:30
+branch: task/T-021-members-api
+pr: https://github.com/example-org/team-insights-app/pull/7

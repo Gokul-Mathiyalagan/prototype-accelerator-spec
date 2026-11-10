@@ -1,0 +1,159 @@
+{
+  "$defs": {
+    "GhidraPin": {
+      "additionalProperties": false,
+      "description": "Ghidra 12.1.x; 12.2 needs JDK 25.",
+      "properties": {
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "url": {
+          "format": "uri",
+          "minLength": 1,
+          "title": "Url",
+          "type": "string"
+        },
+        "version": {
+          "pattern": "^12\\.1\\.\\d+$",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "url",
+        "sha256"
+      ],
+      "title": "GhidraPin",
+      "type": "object"
+    },
+    "JdkPin": {
+      "additionalProperties": false,
+      "description": "Temurin JDK 21.",
+      "properties": {
+        "sha256": {
+          "additionalProperties": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "propertyNames": {
+            "enum": [
+              "darwin-arm64",
+              "darwin-x64",
+              "linux-x64"
+            ]
+          },
+          "title": "Sha256",
+          "type": "object"
+        },
+        "vendor": {
+          "const": "temurin",
+          "title": "Vendor",
+          "type": "string"
+        },
+        "version": {
+          "pattern": "^21(\\.\\d+)*$",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "vendor",
+        "version",
+        "sha256"
+      ],
+      "title": "JdkPin",
+      "type": "object"
+    },
+    "NodePin": {
+      "additionalProperties": false,
+      "description": "Node, at the version in REA's `.nvmrc` at the pinned commit.",
+      "properties": {
+        "sha256": {
+          "additionalProperties": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "propertyNames": {
+            "enum": [
+              "darwin-arm64",
+              "darwin-x64",
+              "linux-x64"
+            ]
+          },
+          "title": "Sha256",
+          "type": "object"
+        },
+        "version": {
+          "pattern": "^\\d+(\\.\\d+)*$",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "sha256"
+      ],
+      "title": "NodePin",
+      "type": "object"
+    },
+    "ReaPin": {
+      "additionalProperties": false,
+      "description": "REA has no tagged releases, so it is pinned by full commit.",
+      "properties": {
+        "commit": {
+          "pattern": "^[0-9a-f]{40}$",
+          "title": "Commit",
+          "type": "string"
+        },
+        "repo": {
+          "format": "uri",
+          "minLength": 1,
+          "title": "Repo",
+          "type": "string"
+        }
+      },
+      "required": [
+        "repo",
+        "commit"
+      ],
+      "title": "ReaPin",
+      "type": "object"
+    }
+  },
+  "$id": "versions-lock.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "`setup/versions.lock`.",
+  "properties": {
+    "ghidra": {
+      "$ref": "#/$defs/GhidraPin"
+    },
+    "jdk": {
+      "$ref": "#/$defs/JdkPin"
+    },
+    "node": {
+      "$ref": "#/$defs/NodePin"
+    },
+    "rea": {
+      "$ref": "#/$defs/ReaPin"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "description": "Contract version; bump on breaking changes.",
+      "title": "Schema Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "rea",
+    "node",
+    "jdk",
+    "ghidra"
+  ],
+  "title": "VersionsLock",
+  "type": "object"
+}

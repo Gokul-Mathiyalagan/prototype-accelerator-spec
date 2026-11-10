@@ -1,0 +1,7 @@
+id: sso-auth-03
+prompt: Add a protected /reports route to the FastAPI service that only the analyst role can reach.
+fixture: blueprints/internal-data-app
+rubric:
+  - {criterion: "Uses the shared token validation dependency, not a new one", weight: 0.4}
+  - {criterion: "Maps the analyst role through the role-mapping config", weight: 0.4}
+  - {criterion: "Adds a test for the 403 case", weight: 0.2}

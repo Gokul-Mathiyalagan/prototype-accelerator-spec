@@ -1,0 +1,152 @@
+{
+  "$id": "task.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One task. The claim fields act as the lock between Copilot sessions.",
+  "properties": {
+    "acceptance": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Acceptance",
+      "type": "array"
+    },
+    "blocked_reason": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Blocked Reason"
+    },
+    "branch": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Branch"
+    },
+    "claimed_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Claimed At"
+    },
+    "claimed_by": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Claimed By"
+    },
+    "depends_on": {
+      "items": {
+        "pattern": "^T-\\d{3,}$",
+        "type": "string"
+      },
+      "title": "Depends On",
+      "type": "array"
+    },
+    "done_when": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Done When",
+      "type": "array"
+    },
+    "id": {
+      "pattern": "^T-\\d{3,}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "inputs": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Inputs",
+      "type": "array"
+    },
+    "pr": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Pr"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "description": "Contract version; bump on breaking changes.",
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "skills": {
+      "items": {
+        "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+        "type": "string"
+      },
+      "title": "Skills",
+      "type": "array"
+    },
+    "status": {
+      "enum": [
+        "ready",
+        "claimed",
+        "in_review",
+        "done",
+        "blocked"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "title": {
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "acceptance",
+    "done_when",
+    "status"
+  ],
+  "title": "Task",
+  "type": "object"
+}

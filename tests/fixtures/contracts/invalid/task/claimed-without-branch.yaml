@@ -1,0 +1,7 @@
+id: T-014
+title: Team dashboard screen
+acceptance: [aisdlc/02-requirements/acceptance/team-dashboard.feature]
+done_when: ["accel check --level prototype --scope web/teams"]
+status: claimed
+claimed_by: copilot@laptop
+claimed_at: 2026-12-05T14:00:00Z

@@ -1,0 +1,8 @@
+name: team-insights-app
+blueprint: internal-data-app@1.0
+level: pilot
+assistant: github-copilot
+copilot_model: gpt-6.1-sol
+design_source: html
+owners: {product: "@pm", tech: "@tech-lead", design: "@designer"}
+adapters: {auth: mock-idp, data: postgres}

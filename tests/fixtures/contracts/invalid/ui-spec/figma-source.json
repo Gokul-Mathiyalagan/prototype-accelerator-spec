@@ -1,0 +1,3 @@
+{"source": {"kind": "figma", "path": "design/file.fig"},
+ "screens": [{"id": "home", "route": "/", "pattern": "dashboard",
+   "screenshots": {"desktop": "s/home.desktop.png", "mobile": "s/home.mobile.png"}}]}

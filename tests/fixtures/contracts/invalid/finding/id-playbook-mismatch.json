@@ -1,0 +1,1 @@
+{"id": "api-surface.token-validation", "playbook": "auth-sso", "claim": "Tokens are validated in middleware.", "evidence": [{"kind": "static", "repo": "repo-a", "path": "service/auth/middleware.py", "line": 42, "commit": "9f3c2e1"}], "confidence": "high", "recorded_by": "copilot:gpt-6.1-sol"}

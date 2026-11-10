@@ -1,0 +1,10 @@
+schema_version: 1
+id: repo-overview
+questions:
+  - What is the repo for, and what are its main modules?
+  - How do you build, test and run it?
+evidence: [static]
+tools: [code_graph, read_file]
+budget: {max_turns: 20, max_cost_usd: 2}
+output: finding
+feeds: [repo-conventions, architecture-map]

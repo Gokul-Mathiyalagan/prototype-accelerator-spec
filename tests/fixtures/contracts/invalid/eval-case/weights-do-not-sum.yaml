@@ -1,0 +1,6 @@
+id: sso-auth-01
+prompt: Protect the /admin route.
+fixture: blueprints/internal-data-app
+rubric:
+  - {criterion: Uses the shared dependency, weight: 0.5}
+  - {criterion: Adds a 403 test, weight: 0.2}

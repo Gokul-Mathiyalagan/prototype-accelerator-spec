@@ -1,0 +1,88 @@
+{
+  "$defs": {
+    "ComponentCheck": {
+      "additionalProperties": false,
+      "description": "The state of one installed component.",
+      "properties": {
+        "detail": {
+          "default": "",
+          "title": "Detail",
+          "type": "string"
+        },
+        "name": {
+          "enum": [
+            "node",
+            "jdk",
+            "ghidra",
+            "ghidra-arm64-decompiler",
+            "rea",
+            "env"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "missing",
+            "ok",
+            "wrong_version"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "status"
+      ],
+      "title": "ComponentCheck",
+      "type": "object"
+    }
+  },
+  "$id": "install-check.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "The JSON object `install.sh --check --json` prints.",
+  "properties": {
+    "components": {
+      "items": {
+        "$ref": "#/$defs/ComponentCheck"
+      },
+      "minItems": 1,
+      "title": "Components",
+      "type": "array"
+    },
+    "next_action": {
+      "default": "",
+      "title": "Next Action",
+      "type": "string"
+    },
+    "ok": {
+      "title": "Ok",
+      "type": "boolean"
+    },
+    "platform": {
+      "enum": [
+        "darwin-arm64",
+        "darwin-x64",
+        "linux-x64"
+      ],
+      "title": "Platform",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "description": "Contract version; bump on breaking changes.",
+      "title": "Schema Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "ok",
+    "platform",
+    "components"
+  ],
+  "title": "InstallCheck",
+  "type": "object"
+}

@@ -1,0 +1,15 @@
+schema_version: 1
+rea:
+  repo: https://github.com/morluto/rea
+  commit: 0123456789abcdef0123456789abcdef01234567
+node:
+  version: "22.11.0"
+  sha256: {darwin-arm64: 3f1c9a7e5b2d4f6081a3c5e7f9b1d3e5a7c9e1f3b5d7f9a1c3e5b7d9f1a3c5e7, darwin-x64: 3f1c9a7e5b2d4f6081a3c5e7f9b1d3e5a7c9e1f3b5d7f9a1c3e5b7d9f1a3c5e7, linux-x64: 3f1c9a7e5b2d4f6081a3c5e7f9b1d3e5a7c9e1f3b5d7f9a1c3e5b7d9f1a3c5e7}
+jdk:
+  vendor: temurin
+  version: "21.0.5"
+  sha256: {darwin-arm64: 3f1c9a7e5b2d4f6081a3c5e7f9b1d3e5a7c9e1f3b5d7f9a1c3e5b7d9f1a3c5e7, darwin-x64: 3f1c9a7e5b2d4f6081a3c5e7f9b1d3e5a7c9e1f3b5d7f9a1c3e5b7d9f1a3c5e7, linux-x64: 3f1c9a7e5b2d4f6081a3c5e7f9b1d3e5a7c9e1f3b5d7f9a1c3e5b7d9f1a3c5e7}
+ghidra:
+  version: 12.1.4
+  url: https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.4_build/ghidra_12.1.4_PUBLIC.zip
+  sha256: 3f1c9a7e5b2d4f6081a3c5e7f9b1d3e5a7c9e1f3b5d7f9a1c3e5b7d9f1a3c5e7

@@ -1,0 +1,7 @@
+id: auth-sso
+questions: []
+evidence: [static]
+tools: [read_file]
+budget: {max_turns: 10, max_cost_usd: 1}
+output: finding
+feeds: [sso-auth]

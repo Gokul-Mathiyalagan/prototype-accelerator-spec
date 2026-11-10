@@ -1,0 +1,157 @@
+{
+  "$defs": {
+    "ApprovedBy": {
+      "additionalProperties": false,
+      "description": "The owner's approval in the registry.",
+      "properties": {
+        "date": {
+          "format": "date",
+          "title": "Date",
+          "type": "string"
+        },
+        "github": {
+          "pattern": "^@[A-Za-z0-9][A-Za-z0-9-]*(/[A-Za-z0-9][A-Za-z0-9-]*)?$",
+          "title": "Github",
+          "type": "string"
+        },
+        "pr": {
+          "exclusiveMinimum": 0,
+          "title": "Pr",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "github",
+        "pr",
+        "date"
+      ],
+      "title": "ApprovedBy",
+      "type": "object"
+    },
+    "GeneratedBy": {
+      "additionalProperties": false,
+      "description": "The tool and model that drafted the skill.",
+      "properties": {
+        "model": {
+          "minLength": 1,
+          "title": "Model",
+          "type": "string"
+        },
+        "tool": {
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "title": "Tool",
+          "type": "string"
+        },
+        "version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tool",
+        "version",
+        "model"
+      ],
+      "title": "GeneratedBy",
+      "type": "object"
+    },
+    "ProvenanceSource": {
+      "additionalProperties": false,
+      "description": "A reference repo and the findings a skill was drafted from.",
+      "properties": {
+        "commit": {
+          "pattern": "^[0-9a-f]{7,40}$",
+          "title": "Commit",
+          "type": "string"
+        },
+        "findings": {
+          "items": {
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*\\.[a-z0-9]+(-[a-z0-9]+)*$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Findings",
+          "type": "array"
+        },
+        "repo": {
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "title": "Repo",
+          "type": "string"
+        }
+      },
+      "required": [
+        "repo",
+        "commit",
+        "findings"
+      ],
+      "title": "ProvenanceSource",
+      "type": "object"
+    }
+  },
+  "$id": "provenance.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "`skills/<name>/provenance.yaml`.",
+  "properties": {
+    "approved_by": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ApprovedBy"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Null until approved."
+    },
+    "catalog_version": {
+      "minimum": 1,
+      "title": "Catalog Version",
+      "type": "integer"
+    },
+    "generated_by": {
+      "$ref": "#/$defs/GeneratedBy"
+    },
+    "owner": {
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "title": "Owner",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "description": "Contract version; bump on breaking changes.",
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "skill": {
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "title": "Skill",
+      "type": "string"
+    },
+    "sources": {
+      "description": "Empty for authored skills.",
+      "items": {
+        "$ref": "#/$defs/ProvenanceSource"
+      },
+      "title": "Sources",
+      "type": "array"
+    },
+    "version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "skill",
+    "version",
+    "catalog_version",
+    "owner",
+    "generated_by"
+  ],
+  "title": "Provenance",
+  "type": "object"
+}

@@ -1,0 +1,115 @@
+{
+  "$defs": {
+    "StageResult": {
+      "additionalProperties": false,
+      "description": "The outcome of one extraction stage.",
+      "properties": {
+        "detail": {
+          "default": "",
+          "title": "Detail",
+          "type": "string"
+        },
+        "finished_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Finished At"
+        },
+        "stage": {
+          "enum": [
+            "acquire",
+            "inventory",
+            "static",
+            "runtime",
+            "rea",
+            "investigate",
+            "verify",
+            "knowledge"
+          ],
+          "title": "Stage",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "ok",
+            "skipped",
+            "failed"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "stage",
+        "status"
+      ],
+      "title": "StageResult",
+      "type": "object"
+    }
+  },
+  "$id": "knowledge-manifest.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "`knowledge/<repo>/manifest.json`.",
+  "properties": {
+    "commit": {
+      "pattern": "^[0-9a-f]{7,40}$",
+      "title": "Commit",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "repo": {
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "title": "Repo",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "description": "Contract version; bump on breaking changes.",
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "stages": {
+      "items": {
+        "$ref": "#/$defs/StageResult"
+      },
+      "title": "Stages",
+      "type": "array"
+    },
+    "tool_versions": {
+      "patternProperties": {
+        "^[a-z0-9]+(-[a-z0-9]+)*$": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "title": "Tool Versions",
+      "type": "object"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "repo",
+    "commit",
+    "created_at",
+    "updated_at"
+  ],
+  "title": "KnowledgeManifest",
+  "type": "object"
+}

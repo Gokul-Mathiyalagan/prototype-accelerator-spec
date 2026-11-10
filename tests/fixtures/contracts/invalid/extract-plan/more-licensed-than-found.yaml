@@ -1,0 +1,8 @@
+repo: repo-a
+commit: 9f3c2e1
+prepared_at: 2026-11-20T10:02:00Z
+runtime: skipped
+rea: ok
+native_binaries: 1
+native_binaries_licensed: 2
+playbooks: [native-artifacts]

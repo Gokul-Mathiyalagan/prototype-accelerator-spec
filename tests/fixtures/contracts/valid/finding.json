@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "api-surface.error-envelope",
+  "playbook": "api-surface",
+  "claim": "Every error response uses one envelope with code, message and request_id.",
+  "evidence": [
+    {"kind": "static", "repo": "fastapi-react-sso", "path": "service/app/errors.py", "line": 12, "commit": "9f3c2e1"},
+    {"kind": "runtime", "source": "screenshot", "path": "screenshots/error.desktop.png", "note": "Error banner shows the request id"}
+  ],
+  "confidence": "high",
+  "unknowns": [],
+  "feeds_skills": ["api-design"],
+  "recorded_by": "batch:gpt-6.1-sol"
+}

@@ -1,0 +1,128 @@
+{
+  "$defs": {
+    "Adapters": {
+      "additionalProperties": false,
+      "description": "Mock adapters until pilot; real ones from pilot onward.",
+      "properties": {
+        "auth": {
+          "enum": [
+            "mock-idp",
+            "oidc"
+          ],
+          "title": "Auth",
+          "type": "string"
+        },
+        "data": {
+          "enum": [
+            "sample-data",
+            "postgres",
+            "databricks-sql"
+          ],
+          "title": "Data",
+          "type": "string"
+        }
+      },
+      "required": [
+        "auth",
+        "data"
+      ],
+      "title": "Adapters",
+      "type": "object"
+    },
+    "Owners": {
+      "additionalProperties": false,
+      "description": "Who approves each kind of gate.",
+      "properties": {
+        "design": {
+          "pattern": "^@[A-Za-z0-9][A-Za-z0-9-]*(/[A-Za-z0-9][A-Za-z0-9-]*)?$",
+          "title": "Design",
+          "type": "string"
+        },
+        "product": {
+          "pattern": "^@[A-Za-z0-9][A-Za-z0-9-]*(/[A-Za-z0-9][A-Za-z0-9-]*)?$",
+          "title": "Product",
+          "type": "string"
+        },
+        "tech": {
+          "pattern": "^@[A-Za-z0-9][A-Za-z0-9-]*(/[A-Za-z0-9][A-Za-z0-9-]*)?$",
+          "title": "Tech",
+          "type": "string"
+        }
+      },
+      "required": [
+        "product",
+        "tech",
+        "design"
+      ],
+      "title": "Owners",
+      "type": "object"
+    }
+  },
+  "$id": "project.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "`aisdlc/project.yaml`.",
+  "properties": {
+    "adapters": {
+      "$ref": "#/$defs/Adapters"
+    },
+    "assistant": {
+      "const": "github-copilot",
+      "title": "Assistant",
+      "type": "string"
+    },
+    "blueprint": {
+      "description": "<blueprint>@<version>",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*@\\d+(\\.\\d+){0,2}$",
+      "title": "Blueprint",
+      "type": "string"
+    },
+    "copilot_model": {
+      "minLength": 1,
+      "title": "Copilot Model",
+      "type": "string"
+    },
+    "design_source": {
+      "const": "html",
+      "title": "Design Source",
+      "type": "string"
+    },
+    "level": {
+      "enum": [
+        "mock",
+        "prototype",
+        "pilot",
+        "production"
+      ],
+      "title": "Level",
+      "type": "string"
+    },
+    "name": {
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "title": "Name",
+      "type": "string"
+    },
+    "owners": {
+      "$ref": "#/$defs/Owners"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "description": "Contract version; bump on breaking changes.",
+      "title": "Schema Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "name",
+    "blueprint",
+    "level",
+    "assistant",
+    "copilot_model",
+    "design_source",
+    "owners",
+    "adapters"
+  ],
+  "title": "Project",
+  "type": "object"
+}

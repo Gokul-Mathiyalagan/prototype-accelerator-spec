@@ -1,0 +1,6 @@
+skill: sso-auth
+version: 1.2.0
+catalog_version: 1
+owner: security-iam
+generated_by: {tool: accel-skills, version: 0.3.0, model: gpt-6.1-sol}
+reviewed: true

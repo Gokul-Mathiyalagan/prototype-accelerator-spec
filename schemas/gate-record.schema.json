@@ -1,0 +1,98 @@
+{
+  "$defs": {
+    "ApprovedArtifact": {
+      "additionalProperties": false,
+      "description": "A file, or a folder ending in '/', and its content hash at approval.",
+      "properties": {
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "title": "ApprovedArtifact",
+      "type": "object"
+    }
+  },
+  "$id": "gate-record.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "`aisdlc/gates/<gate>-<level>.yaml`.",
+  "properties": {
+    "approved_at": {
+      "format": "date-time",
+      "title": "Approved At",
+      "type": "string"
+    },
+    "approved_by": {
+      "pattern": "^@[A-Za-z0-9][A-Za-z0-9-]*(/[A-Za-z0-9][A-Za-z0-9-]*)?$",
+      "title": "Approved By",
+      "type": "string"
+    },
+    "artifacts": {
+      "items": {
+        "$ref": "#/$defs/ApprovedArtifact"
+      },
+      "minItems": 1,
+      "title": "Artifacts",
+      "type": "array"
+    },
+    "commit": {
+      "pattern": "^[0-9a-f]{7,40}$",
+      "title": "Commit",
+      "type": "string"
+    },
+    "gate": {
+      "enum": [
+        "spec",
+        "design",
+        "plan",
+        "review",
+        "release"
+      ],
+      "title": "Gate",
+      "type": "string"
+    },
+    "level": {
+      "enum": [
+        "mock",
+        "prototype",
+        "pilot",
+        "production"
+      ],
+      "title": "Level",
+      "type": "string"
+    },
+    "notes": {
+      "default": "",
+      "title": "Notes",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "description": "Contract version; bump on breaking changes.",
+      "title": "Schema Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "gate",
+    "level",
+    "approved_by",
+    "approved_at",
+    "commit",
+    "artifacts"
+  ],
+  "title": "GateRecord",
+  "type": "object"
+}

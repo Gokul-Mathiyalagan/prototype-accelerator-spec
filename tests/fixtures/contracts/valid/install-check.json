@@ -1,0 +1,9 @@
+{
+  "ok": false,
+  "platform": "darwin-arm64",
+  "components": [
+    {"name": "node", "status": "ok"},
+    {"name": "jdk", "status": "wrong_version", "detail": "found 17, need 21"}
+  ],
+  "next_action": "Run setup/install.sh install jdk"
+}
