@@ -5,7 +5,7 @@
 - **Active task:** T-007 Fixture repos
 - **Task status:** review
 - **Branch:** task/T-007-fixture-repos
-- **Last commit:** 01d318a T-007: wip fixture repos fastapi-react-sso and native-sdk-sample
+- **Last commit:** 73d1086 T-007: EXPECTED.md, fixture tests, redaction fix for prefixed secrets
 
 ## Summary
 
