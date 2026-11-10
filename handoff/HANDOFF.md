@@ -5,7 +5,7 @@
 - **Active task:** T-006 Setup assets for /accel-setup (Copilot and Claude Code)
 - **Task status:** review
 - **Branch:** task/T-006-setup-assets
-- **Last commit:** d72477b Merge branch 'main' into task/T-006-setup-assets
+- **Last commit:** 490caa0 T-006: add /accel-setup assets for Copilot and Claude Code
 
 ## Summary
 
