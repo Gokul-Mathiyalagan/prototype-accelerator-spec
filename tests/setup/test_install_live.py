@@ -43,7 +43,7 @@ def test_full_install_verify_and_mcp_handshake(
         err = (tmp_path / f"{name}.stderr").read_text(encoding="utf-8")
         return code, out, err
 
-    for name in ("install", "rerun", "check", "verify", "mcp"):
+    for name in ("install", "rerun", "check", "mcp"):
         code, _, err = step(name)
         assert code == 0, f"{name} exited {code}:\n{err[-4000:]}"
 
@@ -53,4 +53,8 @@ def test_full_install_verify_and_mcp_handshake(
 
     reply = json.loads(step("mcp")[1])
     assert reply["id"] == 1
-    assert "serverInfo" in reply["result"]
+    assert reply["result"]["serverInfo"]["name"] == "rea"
+
+    # Last, so a failure here can't hide the results above.
+    code, _, err = step("verify")
+    assert code == 0, f"verify exited {code}:\n{err[-4000:]}"

@@ -105,7 +105,7 @@ tasks:
     - "shellcheck clean; a Linux container test runs --check end to end with downloads faked; a live_rea test runs the full install and npm run verify:ghidra"
   status: in_progress
   owner: claude-code
-  progress: "Claimed; building installer, testing in a Linux Docker container (Windows host)."
+  progress: "All offline criteria met (24 container tests). Live Linux install, check and MCP handshake pass; REA's own verify:ghidra fails on Linux (REA verifier strips locale vars). Awaiting Gokul: accept, or verify on a Mac."
 
 - id: T-006
   phase: 0
