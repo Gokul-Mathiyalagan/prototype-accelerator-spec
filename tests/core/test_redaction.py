@@ -42,6 +42,9 @@ def test_each_kind_is_replaced_with_a_typed_placeholder(kind: str, value: str) -
             "postgres://app:s3cr3t-pw@db:5432/x",
             "postgres://app:[REDACTED_URL_CREDENTIALS_1]@db:5432/x",
         ),
+        ('DB_PASSWORD = "hunter2-fixture-only"', 'DB_PASSWORD = "[REDACTED_SECRET_1]"'),
+        ("SESSION_SECRET=abcdef123456", "SESSION_SECRET=[REDACTED_SECRET_1]"),
+        ("GITHUB_API_KEY: 'zz9-plural-z-alpha'", "GITHUB_API_KEY: '[REDACTED_SECRET_1]'"),
     ],
 )
 def test_assignments_keep_their_context(text: str, expected: str) -> None:
@@ -64,6 +67,9 @@ def test_the_same_value_gets_the_same_placeholder_within_a_session() -> None:
         "def validate_token(token: str) -> bool: return True",
         "Listen on 0.0.0.0:8080 with 4 workers",
         "token = None",
+        "access_token = body.access_token",
+        "request.state.user_token = claims_from_header",
+        "MAX_TOKENS = 4096",
     ],
 )
 def test_ordinary_code_and_text_is_left_alone(text: str) -> None:

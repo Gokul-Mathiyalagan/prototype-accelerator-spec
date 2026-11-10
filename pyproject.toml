@@ -53,6 +53,8 @@ venv = ".venv"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Fixture repos carry their own test suites, which run inside their Docker images.
+norecursedirs = [".*", "build", "dist", "node_modules", "venv", "fixtures"]
 addopts = "--strict-markers --strict-config -ra"
 markers = [
     "live: requires an external service or tool; skipped by default",

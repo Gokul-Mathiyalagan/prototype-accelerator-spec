@@ -47,6 +47,13 @@ DEFAULT_RULES: tuple[RedactionRule, ...] = (
         r"\w*[\"']?\s*[:=]\s*[\"']?(?P<value>[^\s\"',;]{6,})",
         re.IGNORECASE,
     ),
+    # UPPER_SNAKE constants and env vars that end in a secret word, such as DB_PASSWORD.
+    # Case-sensitive, so ordinary code like `access_token = body.access_token` is kept.
+    _rule(
+        "secret",
+        r"\b[A-Z0-9]+(?:_[A-Z0-9]+)*_(?:PASSWORD|PASSWD|PWD|SECRET|TOKEN|API_?KEY|ACCESS_KEY)\b"
+        r"[\"']?\s*[:=]\s*[\"']?(?P<value>[^\s\"',;]{6,})",
+    ),
     _rule("email", r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"),
     _rule(
         "phone",
