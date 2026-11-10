@@ -106,4 +106,15 @@ cp /accel/arm64/rea.env "$OUT/arm64/rea.env"
 [ -x /accel/arm64/tools/ghidra/Ghidra/Features/Decompiler/os/mac_arm_64/decompile ] &&
   echo yes >"$OUT/arm64/decompiler-installed"
 
+# 14. Moving a pin (what /accel-setup update handles): check reports wrong_version, then
+# installing only that component moves it.
+next_commit="$(cat /fakes/rea-next-commit)"
+current_commit="$(sed -n 's/^  commit: //p' "$LOCK")"
+sed "s/$current_commit/$next_commit/" "$LOCK" >/fakes/update.lock
+LOCK_OVERRIDE=/fakes/update.lock run update-check fake_env /accel/linux bash "$INSTALL" --check --json
+LOCK_OVERRIDE=/fakes/update.lock run update-install fake_env /accel/linux bash "$INSTALL" install rea
+LOCK_OVERRIDE=/fakes/update.lock run update-after fake_env /accel/linux bash "$INSTALL" --check --json
+git -C /accel/linux/tools/rea rev-parse HEAD >"$OUT/update-install/head"
+echo "$next_commit" >"$OUT/update-install/expected"
+
 echo "done" >"$OUT/finished"

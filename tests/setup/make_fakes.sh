@@ -86,7 +86,14 @@ fake_rea() {
   git -C "$src" commit -qm "fake REA"
   mkdir -p "$mirror/morluto"
   git clone -q --bare "$src" "$mirror/morluto/rea"
-  git -C "$src" rev-parse HEAD
+  local first
+  first="$(git -C "$src" rev-parse HEAD)"
+  # A second commit, so tests can move the pin the way /accel-setup update expects.
+  git -C "$src" commit -q --allow-empty -m "fake REA, next version"
+  git -C "$src" push -q "$mirror/morluto/rea" HEAD:main
+  git -C "$src" rev-parse HEAD >"$(dirname "$lock")/rea-next-commit"
+  printf '%s
+' "$first"
 }
 
 fake_node linux-x64

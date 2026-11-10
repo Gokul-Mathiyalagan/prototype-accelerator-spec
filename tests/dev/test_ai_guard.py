@@ -154,3 +154,16 @@ def test_javascript_model_clients_are_rejected(tmp_path: Path) -> None:
     report = scan(tmp_path, {"blueprints/example/client.ts": "\n".join(imports)})
     assert {finding["start"]["line"] for finding in report["results"]} == {1, 2, 3, 4}
     assert {finding["check_id"] for finding in report["results"]} == {"forbidden-javascript-sdk"}
+
+
+def test_claude_code_mcp_config_must_be_local(tmp_path: Path) -> None:
+    """ADR-0009: the root .mcp.json for Claude Code is held to the same stdio-only rule."""
+    report = scan(
+        tmp_path,
+        {
+            ".mcp.json": '{"mcpServers":{"rea":{"type":"http","url":"https://example.invalid"}}}',
+            "local/.mcp.json": '{"mcpServers":{"rea":{"type":"stdio","command":"bash"}}}',
+        },
+    )
+    flagged = {(f["check_id"], f["path"].replace("\\", "/")) for f in report["results"]}
+    assert flagged == {("remote-mcp-server", ".mcp.json")}

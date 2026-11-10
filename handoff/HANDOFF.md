@@ -1,60 +1,69 @@
 # Handoff
 
-- **Updated:** 2026-11-10 22:15 IST
+- **Updated:** 2026-11-10 22:40 IST
 - **Agent:** claude-code
 - **Active task:** T-006 Setup assets for /accel-setup (Copilot and Claude Code)
-- **Task status:** in_progress
+- **Task status:** review
 - **Branch:** task/T-006-setup-assets
-- **Last commit:** 73d1086 T-007: EXPECTED.md, fixture tests, redaction fix for prefixed secrets
+- **Last commit:** d72477b Merge branch 'main' into task/T-006-setup-assets
 
 ## Summary
 
-Both fixture repos are built and tested. `fastapi-react-sso` builds in Docker (vitest and pytest pass inside the build) and runs with its mock IdP: sign-in, role checks and the SPA all work. `native-sdk-sample` has two committed ELF `.so` files and a working ctypes caller. The fixture caught a real redaction gap (`DB_PASSWORD = "..."` leaked), which is now fixed in `accel_core.redaction`. `make check`: 346 passed.
+The `/accel-setup` assets exist for both GitHub Copilot (VS Code) and Claude Code (ADR-0009), sharing one troubleshooting skill. Every offline criterion is tested; `make check` passes with 370 tests. The two live checks (running `/accel-setup` for real in each assistant on a macOS or Linux laptop) are Gokul's.
 
 ## Acceptance criteria
 
-- [x] fastapi-react-sso: FastAPI service with OIDC-style token middleware and role mapping, SQLAlchemy models, an LLM client call through an Azure gateway pattern, a React app with routes, a component library, design tokens, and tests; builds and runs with a mock identity provider. Verified by `tests/extract/test_fixture_repos_run.py`: the image build runs vitest (2) and pytest (9), then a smoke test signs in as bob (viewer, export 403) and alice (analyst, export 200).
-- [x] Contains a planted fake secret and fake personal data that redaction must remove. Listed under "Planted sensitive data" in its EXPECTED.md; `test_redaction_removes_each_planted_value` runs the real `Redactor`.
-- [x] native-sdk-sample: a tiny C library built to a .so/.dylib with a permissive license file, plus a Python ctypes caller; and a second binary with a no-reverse-engineering license. tinymath (MIT, with source and a Makefile for `.so`/`.dylib`) and secretsauce (prebuilt only, no-RE license); the ctypes caller and its tests run in Docker.
-- [x] Expected findings for each playbook are written down in tests/fixtures/repos/<repo>/EXPECTED.md for later golden tests. Every playbook is listed; each finding is built into the `Finding` contract and passed through `check_static_evidence`, and each snippet must appear on its cited line.
+- [x] accel-setup agent may run setup/install.sh and the rea-setup skill's fixes only; its instructions say to stop and ask for anything else (`test_allowed_commands_are_only_the_installer_and_the_skill_fixes`).
+- [x] /accel-setup runs check, explains what's missing, installs with approvals, verifies, asks the user to start the rea server, then calls one REA tool (`inspect_analysis_settings`, read-only and needs no target; confirmed in REA 6.8.0's tool list). Order checked by `test_procedure_checks_installs_verifies_then_proves_rea_works`.
+- [x] /accel-setup update moves to new pins in versions.lock. The procedure installs only the `wrong_version` components; the container scenario `update-*` bumps the REA pin and checks that only `rea` is flagged and then moved.
+- [x] rea-setup skill covers: wrong JAVA_HOME, missing arm64 decompiler, proxy or mirror, Node mismatch, Gatekeeper quarantine, MCP server not starting, registry enforcement. It also covers missing prerequisites, checksum mismatch and Windows.
+- [x] .vscode/mcp.json registers rea (via rea-mcp.sh) and accel with ${workspaceFolder} paths only.
+- [x] Frontmatter of all assets is valid YAML with name and description.
+- [ ] Live check (Gokul, VS Code): on a laptop without REA, /accel-setup reaches a working REA tool call; result recorded in a session log.
+- [x] Claude Code (ADR-0009): the command runs the subagent, which has the same allowed actions as the Copilot agent (`test_both_agents_state_exactly_the_same_allowed_actions`) and reads the shared SKILL.md.
+- [x] .mcp.json registers rea and accel as local stdio servers with repo-relative paths and no url fields; the AI-endpoint guard covers .mcp.json (`test_claude_code_mcp_config_must_be_local`); nothing is added under .claude/skills/.
+- [ ] Live check (Gokul, Claude Code): on a macOS or Linux laptop without REA, /accel-setup reaches a working REA tool call; result recorded in a session log.
 
 ## State of the active task
 
-- `tests/fixtures/repos/fastapi-react-sso/`: `service/` (FastAPI, SQLAlchemy, JWT middleware, roles, LLM gateway, prompt file, JSON logs), `mock-idp/`, `web/` (React, Vite, components, tokens, vitest), `Dockerfile`, `docker-compose.yml`, `Makefile`, `.github/workflows/ci.yml`, `EXPECTED.md`.
-- `tests/fixtures/repos/native-sdk-sample/`: `vendor/tinymath/` (source, MIT, `lib/libtinymath.so`), `vendor/secretsauce/` (header, no-RE license, `lib/libsecretsauce.so`), `python/sdk_client.py` and tests, `EXPECTED.md`.
-- `tests/fixtures/repos/_sources/`: `secretsauce.c` and `build_native.sh` (rebuilds both `.so` files in a `gcc:14.2.0` container). They live outside the fixture so secretsauce looks source-less.
-- `tests/extract/test_fixture_repos.py` (offline, 42 tests) and `test_fixture_repos_run.py` (Docker, 2 tests).
-- The Docker helpers moved from `tests/setup/conftest.py` to `tests/conftest.py` (`docker_image(dockerfile, context=None)`, with the tag hashed from the context).
-- `pyproject.toml`: pytest's `norecursedirs` now includes `fixtures`, because the fixture repos' own suites only run inside their images.
+- Copilot: `.github/agents/accel-setup.agent.md`, `.github/prompts/accel-setup.prompt.md`, `.github/skills/rea-setup/SKILL.md`, `.github/copilot-instructions.md`, `.vscode/mcp.json`.
+- Claude Code: `.claude/commands/accel-setup.md` (the main session: subagent, then `/mcp`, then the REA call), `.claude/agents/accel-setup.md` (tools: Bash, Read, Grep, Glob), `.mcp.json`.
+- `docs/setup.md`: the user guide for both assistants.
+- Tests: `tests/setup/test_setup_assets.py`, a new scenario in `tests/setup/scenarios.sh` (#14), and a new guard test in `tests/dev/test_ai_guard.py`.
 
 ## Next step
 
-1. T-007 is merged into `main` and done. T-006 is claimed on `task/T-006-setup-assets`; its plan goes here once written.
+1. Gokul runs the two live checks on a macOS or Linux laptop without `~/.accel`: `/accel-setup` in VS Code Copilot agent mode, and `/accel-setup` in Claude Code. Record the results in a session log. Watch the points under "Watch out".
+2. If both pass, merge `task/T-006-setup-assets` and set T-006 `done`.
+3. Push `main`: it has unpushed commits (ADR-0009, the T-007 merge and its done commit).
+4. Next eligible tasks: T-108 (playbooks), T-201 (catalog), T-008 if its dependencies are done.
 
 ## How to verify
 
 ```bash
-uv run make check     # 346 passed; includes the fixture Docker tests (first build downloads npm/pip packages)
-bash tests/fixtures/repos/_sources/build_native.sh   # rebuild the .so files
+uv run make check   # 370 passed, 1 skipped
 ```
 
 ## Decisions and assumptions
 
-- Redaction fix (T-004 code): a new case-sensitive `secret` rule for UPPER_SNAKE names ending in PASSWORD, SECRET, TOKEN, API_KEY or ACCESS_KEY. Lower-case code such as `access_token = body.access_token` is deliberately not matched (`test_ordinary_code_and_text_is_left_alone`).
-- The planted AWS key is AWS's documented example (`AKIAIOSFODNN7EXAMPLE`), so GitHub push protection doesn't block it. Passwords and secrets are obvious fake strings.
-- The `.so` files are committed and Linux-only. The Makefile builds `.dylib` on macOS, but no `.dylib` is committed.
-- Mock sign-in goes through the app (`/auth/token`, only when `AUTH_MODE=mock`), so tokens carry the IdP's in-network issuer.
-- `make check` builds the fixture image when Docker is available; CI's first run downloads the pinned npm and pip packages.
+- The setup procedure lives in each agent; the prompt and command only start it. In Claude Code, the subagent installs and verifies, then the main session asks the user to `/mcp` connect and calls REA, because a subagent can't be relied on to see newly connected MCP tools.
+- The Claude Code subagent's tools are Bash, Read, Grep and Glob (no Edit or Write), so it physically can't edit files.
+- The proof-of-life REA call is `inspect_analysis_settings`, chosen from the real server's 253 tools as read-only with no required input.
 
 ## Spec changes
 
-- ADR-0009 (accepted by Gokul, on `main`): Claude Code can also run `/accel-setup`. It amends C1, ADR-0002, spec/02 and spec/06, and T-006 now has Claude Code acceptance criteria.
+None in this task (ADR-0009 was adopted earlier on `main`).
 
 ## Open questions for Gokul
 
-- `make test-live` breaks on Windows without `UV=uv` (the Makefile `$(UV)` path is mangled by sh). Should I add a task to fix it?
+- `make test-live` breaks on Windows without `UV=uv`. Should I add a task to fix the Makefile?
 
 ## Watch out
 
-- In Git Bash, Docker arguments like `/mock-idp` are rewritten to `C:/Program Files/Git/...`; use `MSYS_NO_PATHCONV=1` (pytest's subprocess calls aren't affected).
-- The `accel-live-home` Docker volume (about 2 GB) holds the T-005 live install.
+These are things only the live checks can confirm:
+
+
+- The Copilot agent's `tools` names (`execute`, `read`, `search`, `rea/*`) and the prompt's `agent:` key follow current VS Code docs as I know them. If VS Code reports unknown tools, adjust the names; the instructions don't depend on them.
+- `.mcp.json` uses repo-relative paths (`setup/rea-mcp.sh`), assuming Claude Code starts project servers from the project root.
+- The `accel` server fails to start until T-110 builds `accel-mcp`; `docs/setup.md` says this is expected.
+- This repo now has `.mcp.json`, so Claude Code dev sessions here will offer to start `rea` and `accel`. Declining is fine.

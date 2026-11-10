@@ -1,0 +1,14 @@
+{
+  "servers": {
+    "rea": {
+      "type": "stdio",
+      "command": "bash",
+      "args": ["${workspaceFolder}/setup/rea-mcp.sh"]
+    },
+    "accel": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "--directory", "${workspaceFolder}", "accel-mcp"]
+    }
+  }
+}

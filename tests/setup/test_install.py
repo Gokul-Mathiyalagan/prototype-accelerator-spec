@@ -161,6 +161,17 @@ def test_apple_silicon_builds_the_arm64_decompiler(out: Path) -> None:
     assert (check.platform, decompiler.status, decompiler.detail) == ("darwin-arm64", "ok", "built")
 
 
+def test_moving_a_pin_is_reported_and_only_that_component_is_reinstalled(out: Path) -> None:
+    check = _check(out, "update-check")
+    rea = next(c for c in check.components if c.name == "rea")
+    assert rea.status == "wrong_version"
+    assert [c.name for c in check.components if c.status != "ok"] == ["rea"]
+    assert _exit(out, "update-install") == 0
+    head = (out / "update-install" / "head").read_text().strip()
+    assert head == (out / "update-install" / "expected").read_text().strip()
+    assert _check(out, "update-after").ok
+
+
 # ── Failures and exit codes ───────────────────────────────────────────────────
 
 
