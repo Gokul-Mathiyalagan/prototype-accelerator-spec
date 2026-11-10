@@ -126,9 +126,9 @@ tasks:
     - "Claude Code (ADR-0009): .claude/commands/accel-setup.md runs the accel-setup subagent in .claude/agents/accel-setup.md, which has the same allowed actions as the Copilot agent and reads .github/skills/rea-setup/SKILL.md instead of a copy; a test checks both agents state the same allowed actions"
     - ".mcp.json registers rea (via setup/rea-mcp.sh) and accel as local stdio servers with repo-relative paths and no url fields; the AI-endpoint guard covers .mcp.json; nothing is added under .claude/skills/"
     - "Live check (Gokul, Claude Code): on a macOS or Linux laptop without REA, /accel-setup reaches a working REA tool call; result recorded in a session log"
-  status: review
+  status: done
   owner: claude-code
-  progress: "All offline criteria met (370 tests). Pending: the two live checks on macOS (Copilot in VS Code; Claude Code, which the Linux container can cover too), plus the macOS installer paths listed in HANDOFF.md."
+  progress: "Merged into main at Gokul's request; offline criteria met (370 tests). Deferred: the two live checks and the macOS installer paths listed under Pending on macOS in HANDOFF.md."
 
 - id: T-007
   phase: 0

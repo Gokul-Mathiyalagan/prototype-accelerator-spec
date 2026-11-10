@@ -1,15 +1,15 @@
 # Handoff
 
-- **Updated:** 2026-11-10 23:00 IST
+- **Updated:** 2026-11-10 23:10 IST
 - **Agent:** claude-code
-- **Active task:** T-006 Setup assets for /accel-setup (Copilot and Claude Code)
-- **Task status:** review
-- **Branch:** task/T-006-setup-assets
-- **Last commit:** 43b8352 T-006: list the checks still pending on macOS
+- **Active task:** none
+- **Task status:** done
+- **Branch:** main
+- **Last commit:** 5b5aee2 T-006: handoff
 
 ## Summary
 
-The `/accel-setup` assets exist for both GitHub Copilot (VS Code) and Claude Code (ADR-0009), sharing one troubleshooting skill. Every offline criterion is tested; `make check` passes with 370 tests. The two live checks (running `/accel-setup` for real in each assistant on a macOS or Linux laptop) are Gokul's.
+The `/accel-setup` assets exist for both GitHub Copilot (VS Code) and Claude Code (ADR-0009), sharing one troubleshooting skill. Every offline criterion is tested; `make check` passes with 370 tests. T-006 is merged into `main` and done at Gokul's request, with the two live checks and the macOS installer paths deferred (see "Pending on macOS").
 
 ## Acceptance criteria
 
@@ -34,12 +34,8 @@ The `/accel-setup` assets exist for both GitHub Copilot (VS Code) and Claude Cod
 
 ## Next step
 
-1. Gokul runs the two live checks, and records the results in a session log. Watch the points under "Watch out".
-   - Claude Code, on this Windows machine: run `tests/setup/claude-session.sh` in Git Bash (or, in PowerShell, `docker run -it --rm -v "${PWD}:/workspace:ro" -v accel-claude-home:/home/dev accel-claude-session:latest`). Sign in, approve the `rea` and `accel` project servers, type `/accel-setup`, approve each `bash setup/install.sh` command, run `/mcp` to connect `rea` when asked, and confirm the `inspect_analysis_settings` call. The image is Debian, Node 24.22.1 and Claude Code 2.1.322, running as a non-root user with the repo mounted read-only.
-   - Copilot: in VS Code agent mode on a macOS or Linux laptop without `~/.accel`.
-2. If both pass, merge `task/T-006-setup-assets` and set T-006 `done`.
-3. Push `main`: it has unpushed commits (ADR-0009, the T-007 merge and its done commit).
-4. Next eligible tasks: T-108 (playbooks), T-201 (catalog), T-008 if its dependencies are done.
+1. Run the items under "Pending on macOS" when a Mac is available. The Claude Code check can also run now from Windows with `tests/setup/claude-session.sh`. Record results in a session log; fix anything they find in a new task.
+2. Next eligible tasks: T-108 (playbooks) and T-201 (catalog), which depend only on done tasks. Check `tasks.yaml` for others unblocked by T-005, T-006 and T-007.
 
 ## Pending on macOS
 
