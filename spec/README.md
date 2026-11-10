@@ -18,6 +18,7 @@ You don't need to read everything. Each task in `tasks/tasks.yaml` lists the sec
 | `07-conventions.md` | Before your first commit: code, tests, git and the definition of done |
 | `08-roadmap.md` | Planning: phases, gates and which tasks belong to each |
 | `decisions/` | ADRs. `open-decisions.md` lists what Gokul hasn't decided yet. |
+| `reference/` | Observed facts about external tools, such as REA's MCP tools and CLI at the pinned commit (`rea-tools.md`) |
 
 ## How the spec relates to other files
 
