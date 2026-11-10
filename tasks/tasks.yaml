@@ -105,7 +105,7 @@ tasks:
     - "shellcheck clean; a Linux container test runs --check end to end with downloads faked; a live_rea test runs the full install and npm run verify:ghidra"
   status: done
   owner: claude-code
-  progress: "Merged into main. Linux verify:ghidra gap fixed on task/T-005-verify-locale (NODE_OPTIONS preload restores a UTF-8 locale inside REA's verifier); verify passed live in Docker."
+  progress: "Merged into main, including the Linux verify:ghidra fix (NODE_OPTIONS preload restores a UTF-8 locale inside REA's verifier); verify passed live in Docker."
 
 - id: T-006
   phase: 0

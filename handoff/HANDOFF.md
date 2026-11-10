@@ -1,15 +1,15 @@
 # Handoff
 
-- **Updated:** 2026-11-10 21:50 IST
+- **Updated:** 2026-11-10 22:00 IST
 - **Agent:** claude-code
 - **Active task:** none
 - **Task status:** done
-- **Branch:** task/T-005-verify-locale
-- **Last commit:** 621e7e1 T-005: record decision to keep REA on Docker for Windows
+- **Branch:** main
+- **Last commit:** 53a23ee T-005: fix verify:ghidra on Linux with a UTF-8 locale preload
 
 ## Summary
 
-The installer, launcher and `accel setup`/`accel doctor` are built, and every offline criterion passes. A real install in a Linux container (Docker on Gokul's Windows host) works end to end, and the real REA 6.8.0 MCP server answers through `rea-mcp.sh`. T-005 is merged into `main` and done. The Linux `verify:ghidra` gap is now fixed on `task/T-005-verify-locale` (below): REA's own verifier passes against the real install. That fix is waiting for Gokul to merge it.
+The installer, launcher and `accel setup`/`accel doctor` are built, and every offline criterion passes. A real install in a Linux container (Docker on Gokul's Windows host) works end to end, and the real REA 6.8.0 MCP server answers through `rea-mcp.sh`. T-005 is merged into `main` and done. The Linux `verify:ghidra` gap is fixed and merged (below): REA's own verifier passes against the real install.
 
 ## Acceptance criteria
 
@@ -35,10 +35,9 @@ REA's verifier (`scripts/lib/native-value-e2e.mjs`, `environment()`) starts its 
 
 ## Next step
 
-1. Gokul merges `task/T-005-verify-locale` into `main`.
-2. Optionally, file the upstream issue drafted in `handoff/log/2026-11-10-claude-code-T-005.md` (the preload is a workaround; REA's verifier is still wrong upstream). Then drop the preload when REA fixes it.
-3. When convenient, confirm `setup/install.sh verify` on a Mac.
-4. The next eligible tasks are T-006 (Copilot setup assets; needs copilot and rea), T-007 (fixture repos), T-108 (playbooks) and T-201 (catalog).
+1. Optionally, file the upstream issue drafted in `handoff/log/2026-11-10-claude-code-T-005.md` (the preload is a workaround; REA's verifier is still wrong upstream). Then drop the preload when REA fixes it.
+2. When convenient, confirm `setup/install.sh verify` on a Mac.
+3. The next eligible tasks are T-006 (Copilot setup assets; needs copilot and rea), T-007 (fixture repos), T-108 (playbooks) and T-201 (catalog).
 
 ## How to verify
 
