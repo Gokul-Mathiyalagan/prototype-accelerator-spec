@@ -160,9 +160,9 @@ tasks:
     - "From VS Code agent mode, REA analyzes the fixture's built bundle, a HAR, and the permissive native binary"
     - "From Python (MCP SDK client over stdio), the same three analyses succeed; a live_rea test covers it"
     - "Confirms whether node scripts/rea.mjs accepts the same subcommands as the rea CLI; result recorded"
-  status: todo
-  owner: null
-  progress: ""
+  status: in_progress
+  owner: claude-code
+  progress: "Claimed; Python MCP path and reference doc via REA in Docker; Copilot path is Gokul's."
 
 - id: T-009
   phase: 0

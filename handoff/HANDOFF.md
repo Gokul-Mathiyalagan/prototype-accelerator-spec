@@ -2,9 +2,9 @@
 
 - **Updated:** 2026-11-10 23:10 IST
 - **Agent:** claude-code
-- **Active task:** none
-- **Task status:** done
-- **Branch:** main
+- **Active task:** T-008 Spike: REA tools from Copilot and from Python
+- **Task status:** in_progress
+- **Branch:** task/T-008-rea-spike
 - **Last commit:** 5b5aee2 T-006: handoff
 
 ## Summary
