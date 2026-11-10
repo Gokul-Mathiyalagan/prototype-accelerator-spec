@@ -1,0 +1,13 @@
+[project]
+name = "accel-evals"
+version = "0.1.0"
+description = "Skill evaluation harness and grading reports."
+requires-python = ">=3.12,<3.13"
+dependencies = ["accel-core==0.1.0", "accel-package==0.1.0"]
+
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/accel_evals"]

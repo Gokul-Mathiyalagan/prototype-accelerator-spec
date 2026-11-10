@@ -1,0 +1,13 @@
+# Copy to accel.toml (gitignored). Environment variables override these values.
+[azure_openai]
+# Supply AZURE_OPENAI_ENDPOINT for your organization; never put credentials here.
+deployment = "gpt-6.1-sol"
+api_version = "2024-10-21"
+# Authentication uses Microsoft Entra ID through DefaultAzureCredential.
+# API keys are not supported.
+
+[accel]
+home = "~/.accel"
+# registry = "https://github.com/YOUR-ORG/accel-registry.git"
+# mirror = "https://YOUR-INTERNAL-MIRROR"
+# eval_credit_budget = 1000

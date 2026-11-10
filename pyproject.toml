@@ -1,0 +1,65 @@
+[project]
+name = "prototype-accelerator"
+version = "0.1.0"
+description = "Workspace and development tools for Prototype Accelerator."
+requires-python = ">=3.12,<3.13"
+dependencies = []
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["packages/*"]
+
+[tool.uv.sources]
+accel-core = { workspace = true }
+accel-extract = { workspace = true }
+accel-skills = { workspace = true }
+accel-package = { workspace = true }
+accel-design = { workspace = true }
+accel-sdlc = { workspace = true }
+accel-evals = { workspace = true }
+accel-mcp = { workspace = true }
+accel-cli = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "gnumake==4.4.1; sys_platform == 'win32'",
+    "import-linter>=2.3,<3",
+    "pre-commit>=4,<5",
+    "pyright>=1.1.400,<2",
+    "pytest>=8.3,<10",
+    "pytest-cov>=6,<8",
+    "pyyaml>=6,<7",
+    "ruff>=0.11,<1",
+    "semgrep>=1.100,<2",
+    "shellcheck-py>=0.10,<0.12",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = ["tests/fixtures", ".semgrep/tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+
+[tool.pyright]
+include = ["packages"]
+typeCheckingMode = "strict"
+pythonVersion = "3.12"
+venvPath = "."
+venv = ".venv"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers --strict-config -ra"
+markers = [
+    "live: requires an external service or tool; skipped by default",
+    "live_azure: requires Azure OpenAI",
+    "live_copilot: requires GitHub Copilot",
+    "live_rea: requires REA",
+    "live_ghidra: requires Ghidra",
+    "live_work_repos: requires reference repositories",
+    "golden: compares generated output with reviewed golden files",
+]
