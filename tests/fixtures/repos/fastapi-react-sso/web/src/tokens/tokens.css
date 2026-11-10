@@ -1,0 +1,17 @@
+/* Design tokens. Components use these variables, never raw values. */
+:root {
+  --color-surface: #ffffff;
+  --color-text: #1f2328;
+  --color-muted: #59636e;
+  --color-primary: #0b5cad;
+  --color-danger: #b42318;
+  --color-border: #d0d7de;
+  --font-family: "Inter", system-ui, sans-serif;
+  --font-size-body: 14px;
+  --font-size-heading: 20px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --radius: 6px;
+}

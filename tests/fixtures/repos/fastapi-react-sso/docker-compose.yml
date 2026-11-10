@@ -1,0 +1,16 @@
+services:
+  idp:
+    build: .
+    command: ["uvicorn", "mock_idp:app", "--app-dir", "/mock-idp", "--host", "0.0.0.0", "--port", "9000"]
+    environment:
+      MOCK_IDP_ISSUER: http://idp:9000
+    ports: ["9000:9000"]
+  app:
+    build: .
+    depends_on: [idp]
+    environment:
+      OIDC_ISSUER: http://idp:9000
+      AUTH_MODE: mock
+      LLM_MODE: fake
+      DATABASE_URL: sqlite:////tmp/team-insights.db
+    ports: ["8000:8000"]

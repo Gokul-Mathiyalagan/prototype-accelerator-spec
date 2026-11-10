@@ -1,0 +1,10 @@
+[
+  {
+    "team": "Platform Analytics",
+    "members": [
+      {"name": "Priya Raman", "role": "Data Engineer", "email": "priya.raman@example.com", "phone": "+1 415-555-0142", "employee_id": "EMP-100231", "start_date": "2023-04-03"},
+      {"name": "Marcus Lee", "role": "Analyst", "email": "marcus.lee@example.com", "phone": "+91 98765 43210", "employee_id": "EMP-100457", "start_date": "2024-09-16"},
+      {"name": "Ana Souza", "role": "Engineering Manager", "email": "ana.souza@example.com", "phone": "(212) 555-0199", "employee_id": "EMP-099812", "start_date": "2021-01-11"}
+    ]
+  }
+]
