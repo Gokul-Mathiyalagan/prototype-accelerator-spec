@@ -1,29 +1,29 @@
 # Handoff
 
 - **Updated:** 2026-11-10 16:45 IST
-- **Agent:** none yet (spec created)
-- **Active task:** none
-- **Task status:** todo
-- **Branch:** main
-- **Last commit:** spec import
+- **Agent:** codex
+- **Active task:** T-001 Repo scaffold and quality gates
+- **Task status:** in_progress
+- **Branch:** task/T-001-scaffold
+- **Last commit:** 3f4e053 T-000: Import reviewed specification
 
 ## Summary
 
-The spec, task list and handoff protocol are in place. No code exists yet. The first session starts the build with T-001.
+Git was initialized and the existing specification committed on `main` with Gokul's authorization. T-001 is claimed by Codex; the baseline handoff and skill-mirror checks pass.
 
 ## Acceptance criteria
 
-Not applicable: no task is active.
+See T-001 in `tasks/tasks.yaml`; implementation has not started.
 
 ## State of the active task
 
-No task is active. Phase 0 tasks T-001 to T-008 are `todo`. T-001 has no dependencies.
+T-001 is in progress on its task branch. No remote is configured. Python 3.9 is installed, so uv must provision Python 3.12 for this workspace.
 
 ## Next step
 
-1. Follow the `start-session` skill.
-2. Claim **T-001 Repo scaffold and quality gates**: create the branch `task/T-001-scaffold` from `main`, set `status: in_progress` and `owner` in `tasks/tasks.yaml`, and commit `T-001: claim`.
-3. Build T-001 as specified in `tasks/tasks.yaml` and `spec/01-architecture.md` (Repository layout) and `spec/07-conventions.md`.
+1. Create `pyproject.toml` and the nine packages from `spec/01-architecture.md#packages`.
+2. Configure quality gates, the AI-endpoint guard, Makefile targets and CI as required by T-001.
+3. Verify and record the results, then hand off for review.
 
 ## How to verify
 
