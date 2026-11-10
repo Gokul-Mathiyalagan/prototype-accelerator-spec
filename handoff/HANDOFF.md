@@ -1,51 +1,50 @@
 # Handoff
 
-- **Updated:** 2026-11-10 18:56 IST
+- **Updated:** 2026-11-10 19:10 IST
 - **Agent:** antigravity
 - **Active task:** T-002 Dev handoff tooling in CI
-- **Task status:** in_progress
+- **Task status:** review
 - **Branch:** task/T-002-handoff-tooling
-- **Last commit:** 3d5dd1d T-001: handoff
+- **Last commit:** 0d190f4 T-002: Add tests and fixtures for handoff tooling and agent skill mirror
 
 ## Summary
 
-Claimed T-002 on branch `task/T-002-handoff-tooling`. The baseline from T-001 is completely green across all 34 offline tests and quality gates. Starting work on handoff validation unit tests in `tests/dev/` and verifying pre-commit and CI hooks.
+Completed all acceptance criteria for T-002. Added 28 unit and integration tests in `tests/dev/test_handoff_tooling.py` supported by 17 good and bad fixtures in `tests/fixtures/handoff/`, covering every rule in `scripts/handoff_check.py` and `scripts/sync_agent_files.py`. All 62 offline tests pass with 100% line coverage across the workspace. Task is ready for review.
 
 ## Acceptance criteria
 
-- [ ] make handoff-check and make sync-agent-files wrap the two scripts
-- [ ] CI fails if .claude/skills/ differs from .agents/skills/ (sync_agent_files.py --check)
-- [ ] CI fails if tasks.yaml is invalid (unknown status or need, missing acceptance, unknown dependency, cycle, or a done task with a not-done dependency)
-- [ ] A pre-commit hook runs handoff_check.py when tasks/ or handoff/ change
-- [ ] Tests in tests/dev/ cover each handoff_check rule with good and bad fixtures
+- [x] make handoff-check and make sync-agent-files wrap the two scripts
+- [x] CI fails if .claude/skills/ differs from .agents/skills/ (sync_agent_files.py --check)
+- [x] CI fails if tasks.yaml is invalid (unknown status or need, missing acceptance, unknown dependency, cycle, or a done task with a not-done dependency)
+- [x] A pre-commit hook runs handoff_check.py when tasks/ or handoff/ change
+- [x] Tests in tests/dev/ cover each handoff_check rule with good and bad fixtures
 
 ## State of the active task
 
-- `scripts/handoff_check.py`: validates `tasks.yaml`, `HANDOFF.md`, logs, and ADRs.
-- `scripts/sync_agent_files.py`: synchronizes `.agents/skills/` to `.claude/skills/` with `--check` option.
-- `Makefile` & `scripts/dev.py`: wrap `handoff-check` and `sync-agent-files`.
-- `.pre-commit-config.yaml`: has hooks for `handoff-check` and `skill-mirror`.
-- `.github/workflows/ci.yml`: runs `make check` which includes both handoff check and sync check.
-- `tests/dev/`: tests need to be added to thoroughly test `scripts/handoff_check.py` and `scripts/sync_agent_files.py` validation rules and failure modes.
+- `scripts/handoff_check.py`: supports `--root` CLI and function arguments for isolated test validation while preserving default repository paths.
+- `scripts/sync_agent_files.py`: supports `--src`/`--dst` parameters and in-process execution via `main(argv)`.
+- `tests/fixtures/handoff/`: 17 fixture files covering valid and invalid states for tasks, handoffs, and dependencies.
+- `tests/dev/test_handoff_tooling.py`: 28 tests verifying tasks schema, cycle detection, handoff sections, git checks, skill diff/sync, pre-commit regexes, and CI configuration.
+- Entire quality suite passes: Ruff, Pyright strict, import-linter, ShellCheck, Semgrep AI guard, and pytest (62 passed).
 
 ## Next step
 
-1. Write unit tests in `tests/dev/test_handoff_tooling.py` covering all `handoff_check.py` validation rules (tasks schema, unknown status/needs, missing acceptance, dependencies, cycles, done with not-done dep) with fixtures.
-2. Add tests verifying `sync_agent_files.py` detection of drift and check behavior.
-3. Verify pre-commit hook file pattern matching and CI execution behavior.
+1. Gokul reviews `task/T-002-handoff-tooling`, merges into `main`, and sets T-002 `status: done`.
+2. Follow `start-session` on `main`, claim T-003 (`task/T-003-contracts-and-schemas`), and begin contract models in `packages/accel-core/src/accel_core/contracts/`.
 
 ## How to verify
 
 ```powershell
-uv run python scripts/handoff_check.py
-uv run python scripts/dev.py check
+uv run make check
+uv run make handoff-check
+uv run make sync-agent-files
 ```
 
-Expected: all checks and tests pass with 0 errors.
+Expected: 62 passed tests, 100% scaffold package coverage, 0 errors, 0 warnings.
 
 ## Decisions and assumptions
 
-- Test fixtures will use temporary directories or in-memory YAML/Markdown representations to avoid mutating actual workspace files during test runs.
+- Added optional `--root` parameter to `scripts/handoff_check.py` and optional `--src`/`--dst` parameters to `scripts/sync_agent_files.py` so tests can test full CLI and core logic in isolated temporary directories without mutating repo files.
 
 ## Spec changes
 
@@ -57,4 +56,4 @@ None.
 
 ## Watch out
 
-- Keep `handoff_check.py` and `sync_agent_files.py` runnable directly and via `dev.py`.
+- None; all 62 offline tests pass cleanly.

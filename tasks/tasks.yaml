@@ -43,9 +43,9 @@ tasks:
     - "CI fails if tasks.yaml is invalid (unknown status or need, missing acceptance, unknown dependency, cycle, or a done task with a not-done dependency)"
     - "A pre-commit hook runs handoff_check.py when tasks/ or handoff/ change"
     - "Tests in tests/dev/ cover each handoff_check rule with good and bad fixtures"
-  status: in_progress
+  status: review
   owner: antigravity
-  progress: "Claimed task; implementing handoff validation tests and CI/pre-commit verification."
+  progress: "All criteria met: handoff and sync tooling tests added in tests/dev/ with 17 fixtures; 62 offline tests pass."
 
 - id: T-003
   phase: 0
