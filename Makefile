@@ -1,15 +1,14 @@
-# Minimal Makefile until T-001 replaces it with the full set of targets.
-# Before T-001, `make check` runs only the handoff checks.
+UV ?= uv
+NEEDS ?=
 
-PY ?= python3
+.PHONY: setup check test test-live schemas golden handoff-check sync-agent-files
 
-.PHONY: check handoff-check sync-agent-files
+setup:
+	@$(UV) sync --locked --all-packages
+	@$(UV) run --locked --all-packages python scripts/dev.py setup
 
-check: handoff-check
-	@$(PY) scripts/sync_agent_files.py --check
+check test schemas golden handoff-check sync-agent-files:
+	@$(UV) run --locked --all-packages python scripts/dev.py $@
 
-handoff-check:
-	@$(PY) scripts/handoff_check.py
-
-sync-agent-files:
-	@$(PY) scripts/sync_agent_files.py
+test-live:
+	@$(UV) run --locked --all-packages python scripts/dev.py test-live --needs "$(NEEDS)"

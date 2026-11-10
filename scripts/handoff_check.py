@@ -33,14 +33,30 @@ OWNERS = {None, "claude-code", "codex", "antigravity", "gokul"}
 NEEDS = {"azure", "copilot", "rea", "ghidra", "work-repos"}
 AGENTS = {"claude-code", "codex", "antigravity", "gokul", "spec"}
 REQUIRED_FIELDS = [
-    "id", "phase", "title", "goal", "spec", "depends_on", "needs",
-    "paths", "acceptance", "status", "owner", "progress",
+    "id",
+    "phase",
+    "title",
+    "goal",
+    "spec",
+    "depends_on",
+    "needs",
+    "paths",
+    "acceptance",
+    "status",
+    "owner",
+    "progress",
 ]
 TASK_ID = re.compile(r"^T-\d{3}$")
 HANDOFF_SECTIONS = [
-    "Summary", "Acceptance criteria", "State of the active task", "Next step",
-    "How to verify", "Decisions and assumptions", "Spec changes",
-    "Open questions for Gokul", "Watch out",
+    "Summary",
+    "Acceptance criteria",
+    "State of the active task",
+    "Next step",
+    "How to verify",
+    "Decisions and assumptions",
+    "Spec changes",
+    "Open questions for Gokul",
+    "Watch out",
 ]
 HANDOFF_FIELDS = ["Updated", "Agent", "Active task", "Task status", "Branch"]
 LOG_NAME = re.compile(r"^\d{4}-\d{2}-\d{2}-([a-z-]+?)-(T-\d{3})\.md$")
@@ -109,7 +125,11 @@ def check_tasks(r: Report) -> dict[str, dict]:
             r.error(f"{tid}: needs must be a list drawn from {sorted(NEEDS)}")
 
         acc = t.get("acceptance")
-        if not isinstance(acc, list) or not acc or not all(isinstance(a, str) and a.strip() for a in acc):
+        if (
+            not isinstance(acc, list)
+            or not acc
+            or not all(isinstance(a, str) and a.strip() for a in acc)
+        ):
             r.error(f"{tid}: acceptance must be a non-empty list of strings")
 
         for ref in t.get("spec") or []:
@@ -132,7 +152,10 @@ def check_tasks(r: Report) -> dict[str, dict]:
                 dstat = by_id[d].get("status")
                 if t.get("status") == "done" and dstat != "done":
                     r.error(f"{tid}: is done but its dependency {d} is '{dstat}'")
-                elif t.get("status") in {"in_progress", "review"} and dstat not in {"done", "review"}:
+                elif t.get("status") in {"in_progress", "review"} and dstat not in {
+                    "done",
+                    "review",
+                }:
                     r.warn(f"{tid}: is {t.get('status')} while dependency {d} is '{dstat}'")
 
     # cycles
@@ -144,9 +167,9 @@ def check_tasks(r: Report) -> dict[str, dict]:
             if d not in by_id:
                 continue
             if state.get(d) == 1:
-                r.error("dependency cycle: " + " -> ".join(stack + [n, d]))
+                r.error("dependency cycle: " + " -> ".join([*stack, n, d]))
             elif state.get(d) is None:
-                visit(d, stack + [n])
+                visit(d, [*stack, n])
         state[n] = 2
 
     for n in by_id:
@@ -188,7 +211,9 @@ def check_handoff(r: Report, tasks: dict[str, dict], use_git: bool) -> None:
         body = section(text, s)
         if body is None:
             r.error(f"HANDOFF.md: missing section '## {s}'")
-        elif s in {"Summary", "Next step", "How to verify"} and (not body or body in {"...", "1. ..."}):
+        elif s in {"Summary", "Next step", "How to verify"} and (
+            not body or body in {"...", "1. ..."}
+        ):
             r.error(f"HANDOFF.md: section '{s}' is empty")
 
     active = (field(text, "Active task") or "").strip()
@@ -212,10 +237,20 @@ def check_handoff(r: Report, tasks: dict[str, dict], use_git: bool) -> None:
     if use_git:
         branch = (field(text, "Branch") or "").strip()
         try:
-            cur = subprocess.run(["git", "branch", "--show-current"], cwd=ROOT,
-                                 capture_output=True, text=True, check=True).stdout.strip()
-            dirty = subprocess.run(["git", "status", "--porcelain"], cwd=ROOT,
-                                   capture_output=True, text=True, check=True).stdout.strip()
+            cur = subprocess.run(
+                ["git", "branch", "--show-current"],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+                check=True,
+            ).stdout.strip()
+            dirty = subprocess.run(
+                ["git", "status", "--porcelain"],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+                check=True,
+            ).stdout.strip()
         except (OSError, subprocess.CalledProcessError) as exc:
             r.error(f"git check failed: {exc}")
             return
@@ -250,12 +285,17 @@ def check_adrs(r: Report) -> None:
         if not ADR_NAME.match(p.name):
             r.error(f"ADR file '{p.name}' should be named ADR-####-<slug>.md")
         if not ADR_STATUS.search(p.read_text(encoding="utf-8")):
-            r.error(f"{p.name}: needs a '**Status:**' of proposed, accepted, rejected or superseded by ADR-####")
+            r.error(
+                f"{p.name}: needs a '**Status:**' of proposed, accepted, rejected "
+                "or superseded by ADR-####"
+            )
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--git", action="store_true", help="also require a clean tree on the handoff branch")
+    ap.add_argument(
+        "--git", action="store_true", help="also require a clean tree on the handoff branch"
+    )
     args = ap.parse_args()
     r = Report()
     tasks = check_tasks(r)

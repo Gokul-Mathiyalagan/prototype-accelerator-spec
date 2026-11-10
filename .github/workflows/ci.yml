@@ -1,0 +1,25 @@
+name: Quality gates
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.11.30"
+          enable-cache: true
+      - run: uv sync --locked --all-packages
+      - run: make check
+      - run: make schemas
+      - name: Reject schema drift
+        run: |
+          git diff --exit-code -- schemas
+          test -z "$(git ls-files --others --exclude-standard -- schemas)"

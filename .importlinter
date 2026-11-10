@@ -1,0 +1,126 @@
+[importlinter]
+root_packages =
+    accel_core
+    accel_extract
+    accel_skills
+    accel_package
+    accel_design
+    accel_sdlc
+    accel_evals
+    accel_mcp
+    accel_cli
+
+[importlinter:contract:core]
+name = core imports only its declared internal dependencies
+type = forbidden
+source_modules =
+    accel_core
+forbidden_modules =
+    accel_extract
+    accel_skills
+    accel_package
+    accel_design
+    accel_sdlc
+    accel_evals
+    accel_mcp
+    accel_cli
+allow_indirect_imports = True
+
+[importlinter:contract:extract]
+name = extract imports only its declared internal dependencies
+type = forbidden
+source_modules =
+    accel_extract
+forbidden_modules =
+    accel_skills
+    accel_package
+    accel_design
+    accel_sdlc
+    accel_evals
+    accel_mcp
+    accel_cli
+allow_indirect_imports = True
+
+[importlinter:contract:skills]
+name = skills imports only its declared internal dependencies
+type = forbidden
+source_modules =
+    accel_skills
+forbidden_modules =
+    accel_extract
+    accel_package
+    accel_design
+    accel_sdlc
+    accel_evals
+    accel_mcp
+    accel_cli
+allow_indirect_imports = True
+
+[importlinter:contract:package]
+name = package imports only its declared internal dependencies
+type = forbidden
+source_modules =
+    accel_package
+forbidden_modules =
+    accel_extract
+    accel_design
+    accel_sdlc
+    accel_evals
+    accel_mcp
+    accel_cli
+allow_indirect_imports = True
+
+[importlinter:contract:design]
+name = design imports only its declared internal dependencies
+type = forbidden
+source_modules =
+    accel_design
+forbidden_modules =
+    accel_extract
+    accel_skills
+    accel_package
+    accel_sdlc
+    accel_evals
+    accel_mcp
+    accel_cli
+allow_indirect_imports = True
+
+[importlinter:contract:sdlc]
+name = sdlc imports only its declared internal dependencies
+type = forbidden
+source_modules =
+    accel_sdlc
+forbidden_modules =
+    accel_extract
+    accel_skills
+    accel_evals
+    accel_mcp
+    accel_cli
+allow_indirect_imports = True
+
+[importlinter:contract:evals]
+name = evals imports only its declared internal dependencies
+type = forbidden
+source_modules =
+    accel_evals
+forbidden_modules =
+    accel_extract
+    accel_skills
+    accel_design
+    accel_sdlc
+    accel_mcp
+    accel_cli
+allow_indirect_imports = True
+
+[importlinter:contract:mcp]
+name = mcp imports only its declared internal dependencies
+type = forbidden
+source_modules =
+    accel_mcp
+forbidden_modules =
+    accel_skills
+    accel_package
+    accel_design
+    accel_evals
+    accel_cli
+allow_indirect_imports = True

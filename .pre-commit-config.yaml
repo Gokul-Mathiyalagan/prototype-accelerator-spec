@@ -1,0 +1,25 @@
+repos:
+  - repo: local
+    hooks:
+      - id: ruff
+        name: Ruff lint
+        entry: uv run --locked --all-packages ruff check --force-exclude
+        language: system
+        types: [python]
+      - id: ruff-format
+        name: Ruff format
+        entry: uv run --locked --all-packages ruff format --check --force-exclude
+        language: system
+        types: [python]
+      - id: handoff-check
+        name: Validate task and handoff state
+        entry: uv run --locked --all-packages python scripts/handoff_check.py
+        language: system
+        pass_filenames: false
+        files: ^(tasks/|handoff/|spec/decisions/)
+      - id: skill-mirror
+        name: Check shared skill mirror
+        entry: uv run --locked --all-packages python scripts/sync_agent_files.py --check
+        language: system
+        pass_filenames: false
+        files: ^(\.agents/skills/|\.claude/skills/)

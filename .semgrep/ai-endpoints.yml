@@ -1,0 +1,124 @@
+rules:
+  - id: forbidden-model-sdk
+    message: "Use accel_core.gateway and Azure OpenAI; this model SDK is prohibited."
+    severity: ERROR
+    languages: [python]
+    paths:
+      include:
+        - "/packages/**"
+        - "/blueprints/**"
+        - "/templates/**"
+        - "/.github/**"
+        - "/.vscode/**"
+    pattern-either:
+      - patterns:
+          - pattern-either:
+              - pattern: import $SDK
+              - pattern: from $SDK import $NAME
+          - metavariable-regex:
+              metavariable: $SDK
+              regex: '^(anthropic|google\.(generativeai|genai)|vertexai|cohere|mistralai|litellm|langchain_openai|langchain_anthropic|langchain_google_genai)(\.|$)'
+      - pattern: from google import genai
+      - pattern: from google import generativeai
+
+  - id: openai-outside-gateway
+    message: "Only accel_core.gateway may import the Azure OpenAI SDK."
+    severity: ERROR
+    languages: [python]
+    paths:
+      include:
+        - "/packages/**"
+        - "/blueprints/**"
+        - "/templates/**"
+        - "/.github/**"
+        - "/.vscode/**"
+      exclude:
+        - "/packages/accel-core/src/accel_core/gateway/**"
+    patterns:
+      - pattern-either:
+          - pattern: import $SDK
+          - pattern: from $SDK import $NAME
+      - metavariable-regex:
+          metavariable: $SDK
+          regex: '^openai(\.|$)'
+
+  - id: non-azure-openai-client
+    message: "Use AzureOpenAI or AsyncAzureOpenAI in accel_core.gateway."
+    severity: ERROR
+    languages: [python]
+    paths:
+      include:
+        - "/packages/**"
+        - "/blueprints/**"
+        - "/templates/**"
+        - "/.github/**"
+        - "/.vscode/**"
+    pattern-either:
+      - pattern: openai.OpenAI(...)
+      - pattern: openai.AsyncOpenAI(...)
+      - pattern: from openai import OpenAI
+      - pattern: from openai import AsyncOpenAI
+
+  - id: forbidden-model-host
+    message: "Model requests must use the Azure OpenAI gateway."
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include:
+        - "/packages/**"
+        - "/blueprints/**"
+        - "/templates/**"
+        - "/.github/**"
+        - "/.vscode/**"
+    pattern-regex: '\b(api\.openai\.com|api\.anthropic\.com|generativelanguage\.googleapis\.com|aiplatform\.googleapis\.com)\b'
+
+  - id: remote-mcp-server
+    message: "MCP servers must be local stdio processes; remove the url field."
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include:
+        - "**/mcp.json"
+        - "**/*mcp*.yaml"
+        - "**/*mcp*.yml"
+        - "**/*mcp*.json"
+        - "**/*mcp*.json.template"
+        - "**/*mcp*.jsonc"
+      exclude:
+        - "/.agents/**"
+        - "/.claude/**"
+        - "/spec/**"
+        - "/tasks/**"
+        - "/handoff/**"
+        - "/tests/**"
+    pattern-regex: '(?m)["'']?\burl\b["'']?\s*:'
+
+
+  - id: forbidden-template-sdk
+    message: "Generated skill examples must call accel_core.gateway."
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include:
+        - "/templates/**"
+        - "/blueprints/**/*.md"
+        - "/blueprints/**/*.template"
+        - "/.github/**/*.md"
+      exclude:
+        - "**/*.py"
+        - "**/*.js"
+        - "**/*.ts"
+    pattern-regex: '(?m)^\s*(?:import|from)\s+(?:anthropic|google\.(?:generativeai|genai)|vertexai|cohere|mistralai|litellm|langchain_openai|langchain_anthropic|langchain_google_genai|openai)\b|(?m)^\s*from\s+google\s+import\s+(?:genai|generativeai)\b'
+
+  - id: forbidden-javascript-sdk
+    message: "Product model calls must go through the Python Azure OpenAI gateway."
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include:
+        - "/packages/**"
+        - "/blueprints/**"
+        - "/templates/**"
+        - "/.github/**"
+        - "/.vscode/**"
+    pattern-regex: '(?:\bfrom\s*|\brequire\s*\(\s*|\bimport\s*)["''](?:openai|@anthropic-ai/sdk|@google/generative-ai|@google/genai|cohere-ai|@mistralai/mistralai)(?:/[^"'']*)?["'']'

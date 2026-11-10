@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Mirror .agents/skills/ (read by Codex and Antigravity) into .claude/skills/ (read by Claude Code).
+"""Mirror .agents/skills/ into .claude/skills/ for Claude Code.
 
 Usage:
     python3 scripts/sync_agent_files.py          # copy, removing skills that no longer exist
@@ -70,7 +70,11 @@ def main() -> int:
         diffs = differences()
         for d in diffs:
             print(d)
-        print("in sync" if not diffs else f"{len(diffs)} differences; run python3 scripts/sync_agent_files.py")
+        print(
+            "in sync"
+            if not diffs
+            else f"{len(diffs)} differences; run python3 scripts/sync_agent_files.py"
+        )
         return 1 if diffs else 0
     sync()
     print(f"synced {len([p for p in SRC.iterdir() if p.is_dir()])} skills to .claude/skills/")
