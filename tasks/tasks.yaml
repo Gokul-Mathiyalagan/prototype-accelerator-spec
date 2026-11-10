@@ -82,9 +82,9 @@ tasks:
     - "Every call writes an audit line (time, caller, purpose, deployment, token counts, cost, redaction counts), never the content"
     - "FakeGateway in accel_core.testing replays recorded responses for unit tests"
     - "A live_azure test makes one tool-calling round trip against gpt-6.1-sol"
-  status: todo
-  owner: null
-  progress: ""
+  status: in_progress
+  owner: claude-code
+  progress: "Claimed; building gateway, redaction, audit and FakeGateway."
 
 - id: T-005
   phase: 0
