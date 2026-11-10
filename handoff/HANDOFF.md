@@ -1,15 +1,15 @@
 # Handoff
 
-- **Updated:** 2026-11-10 19:10 IST
+- **Updated:** 2026-11-10 19:14 IST
 - **Agent:** antigravity
-- **Active task:** T-002 Dev handoff tooling in CI
-- **Task status:** review
-- **Branch:** task/T-002-handoff-tooling
-- **Last commit:** 0d190f4 T-002: Add tests and fixtures for handoff tooling and agent skill mirror
+- **Active task:** none
+- **Task status:** done
+- **Branch:** main
+- **Last commit:** e716b22 T-002: handoff
 
 ## Summary
 
-Completed all acceptance criteria for T-002. Added 28 unit and integration tests in `tests/dev/test_handoff_tooling.py` supported by 17 good and bad fixtures in `tests/fixtures/handoff/`, covering every rule in `scripts/handoff_check.py` and `scripts/sync_agent_files.py`. All 62 offline tests pass with 100% line coverage across the workspace. Task is ready for review.
+Merged T-002 into `main` at Gokul's request and marked it done. The existing `task/T-002-handoff-tooling` branch is retained as a backup of the verified implementation. The full quality check passes with 62 offline tests and 100% line coverage in each scaffold package; no task is currently active.
 
 ## Acceptance criteria
 
@@ -21,16 +21,19 @@ Completed all acceptance criteria for T-002. Added 28 unit and integration tests
 
 ## State of the active task
 
-- `scripts/handoff_check.py`: supports `--root` CLI and function arguments for isolated test validation while preserving default repository paths.
-- `scripts/sync_agent_files.py`: supports `--src`/`--dst` parameters and in-process execution via `main(argv)`.
-- `tests/fixtures/handoff/`: 17 fixture files covering valid and invalid states for tasks, handoffs, and dependencies.
-- `tests/dev/test_handoff_tooling.py`: 28 tests verifying tasks schema, cycle detection, handoff sections, git checks, skill diff/sync, pre-commit regexes, and CI configuration.
-- Entire quality suite passes: Ruff, Pyright strict, import-linter, ShellCheck, Semgrep AI guard, and pytest (62 passed).
+T-002 is done. T-003 is the next eligible task and has not been claimed.
+
+- `scripts/handoff_check.py`: validates tasks, handoffs, logs, ADRs, and supports `--root`.
+- `scripts/sync_agent_files.py`: mirrors `.agents/skills/` to `.claude/skills/` with `--check` and `--src`/`--dst`.
+- `tests/fixtures/handoff/`: 17 fixtures covering valid and invalid states for tasks and handoffs.
+- `tests/dev/test_handoff_tooling.py`: 28 unit and integration tests covering all validation rules, pre-commit config, and CI workflow.
+- Quality gates: 62 offline tests pass, 100% scaffold coverage, 0 errors, 0 warnings.
 
 ## Next step
 
-1. Gokul reviews `task/T-002-handoff-tooling`, merges into `main`, and sets T-002 `status: done`.
-2. Follow `start-session` on `main`, claim T-003 (`task/T-003-contracts-and-schemas`), and begin contract models in `packages/accel-core/src/accel_core/contracts/`.
+1. Follow the `start-session` skill on `main`; read T-003 in `tasks/tasks.yaml` and cited spec sections (`spec/05-cli-and-contracts.md#contracts`, `spec/02-repo-intelligence.md`, `spec/03-skill-factory.md`, `spec/04-aisdlc.md`).
+2. Create `task/T-003-contracts-and-schemas` from `main`, set T-003 `status: in_progress` with an owner, and commit `T-003: claim`.
+3. Build the 14 Pydantic models in `packages/accel-core/src/accel_core/contracts/` and their schema generation tooling.
 
 ## How to verify
 
@@ -40,11 +43,12 @@ uv run make handoff-check
 uv run make sync-agent-files
 ```
 
-Expected: 62 passed tests, 100% scaffold package coverage, 0 errors, 0 warnings.
+Expected: 62 offline tests pass, 100% line coverage, 0 errors, 0 warnings.
 
 ## Decisions and assumptions
 
-- Added optional `--root` parameter to `scripts/handoff_check.py` and optional `--src`/`--dst` parameters to `scripts/sync_agent_files.py` so tests can test full CLI and core logic in isolated temporary directories without mutating repo files.
+- Merged `task/T-002-handoff-tooling` into `main` via fast-forward upon user approval.
+- Preserved task branch as a backup of the verified work.
 
 ## Spec changes
 
@@ -56,4 +60,4 @@ None.
 
 ## Watch out
 
-- None; all 62 offline tests pass cleanly.
+- None; all quality gates and tests are green.
