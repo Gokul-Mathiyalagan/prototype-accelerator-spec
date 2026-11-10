@@ -4,6 +4,9 @@
 # gitignored .env file (see ADR-0008). Never put the API key here.
 deployment = "gpt-6.1-sol"     # overridden by AZURE_OPENAI_DEPLOYMENT_NAME
 api_version = "2024-10-21"     # overridden by OPENAI_API_VERSION
+# Prices in USD per million tokens. Set both to enforce cost budgets.
+# input_usd_per_mtok = 0.0
+# output_usd_per_mtok = 0.0
 
 [accel]
 home = "~/.accel"

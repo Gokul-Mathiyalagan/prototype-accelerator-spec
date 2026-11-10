@@ -1,61 +1,64 @@
 # Handoff
 
-- **Updated:** 2026-11-10 19:40 IST
+- **Updated:** 2026-11-10 19:53 IST
 - **Agent:** claude-code
-- **Active task:** none
-- **Task status:** done
-- **Branch:** main
-- **Last commit:** 2204092 T-003: handoff
+- **Active task:** T-004 Azure OpenAI gateway, redaction and audit log
+- **Task status:** review
+- **Branch:** task/T-004-azure-gateway
+- **Last commit:** 98ae2ac T-004: add Azure OpenAI gateway, redaction, audit and FakeGateway
 
 ## Summary
 
-T-003 is done and merged into `main` (fast-forward) at Gokul's request; no task is active. `accel_core.contracts` has 15 Pydantic contract models (spec/05's table has 14 rows, but `eval-case` and `eval-report` share one). `make schemas` writes `schemas/*.schema.json`, and `make check` now fails on schema drift. All 185 offline tests pass.
+The gateway is built and tested offline. It uses API key auth per ADR-0008, redacts every outbound message, audits every call without content, and enforces budgets. The one live test (a tool-calling round trip against Azure) is written but hasn't run, because no `.env` exists yet. `make check` passes with 253 tests.
 
 ## Acceptance criteria
 
-- [x] Models exist for all 14 contracts in spec/05, each with schema_version, extra='forbid'. Verified by `test_registry_matches_spec_contract_table` and `test_every_contract_is_versioned_strict_and_frozen`.
-- [x] make schemas writes schemas/<name>.schema.json; CI fails on drift between models and committed schemas. CI already ran `make schemas` + `git diff`; `make check` now also runs `scripts/generate_schemas.py --check` (tests in `tests/dev/test_generate_schemas.py`).
-- [x] Each spec/05 example validates; at least one invalid fixture per contract is rejected with a clear error. The examples are parsed from the spec/05 markdown itself (`test_spec_05_example_validates`). The invalid fixtures and the error text each must produce are listed in `tests/fixtures/contracts/invalid/expected.yaml`.
-- [x] Finding validation enforces non-empty evidence, id format <playbook>.<slug>, and confidence enum; path existence is a separate function that takes a repo root: `check_static_evidence(finding, repo_root) -> list[str]` in `contracts/finding.py`.
+- [x] Gateway uses openai.AzureOpenAI with API key auth (ADR-0008), reading the four variables with their defaults: `gateway/azure.py` and `gateway/config.py`. `test_gateway_azure.py` checks the URL, `api-key` header and api-version through the real SDK over `httpx.MockTransport`.
+- [x] A missing endpoint or key raises a typed config error naming the variable; an api_key in accel.toml is rejected; the key never appears in logs, audit lines or error messages: `test_gateway_config.py`. The gateway also redacts the key itself if it shows up in content.
+- [x] .env.example lists the four variables with placeholder values only: `test_env_example_lists_the_four_variables_with_placeholders`.
+- [x] Supports chat completions with tool calling and structured output (JSON Schema from a contract model), reasoning effort, and streaming off by default: `Gateway.chat` and `Gateway.structured`. `stream=False` is always sent.
+- [x] Redaction runs on every outbound message: `accel_core/redaction/`, with 12 rule kinds and typed placeholders such as `[REDACTED_EMAIL_1]` (`test_redaction.py`, plus the first test in `test_gateway.py`).
+- [x] Per-call and per-run budgets (tokens, cost) raise BudgetExceeded: `gateway/budget.py`.
+- [x] Every call writes an audit line, never the content: `accel_core/audit/`, to `$ACCEL_HOME/audit/model-calls.jsonl`.
+- [x] FakeGateway in accel_core.testing replays recorded responses for unit tests: `accel_core/testing/gateway.py`, with a recording in `tests/fixtures/gateway/tool-round-trip.json`.
+- [ ] A live_azure test makes one tool-calling round trip against gpt-6.1-sol: written in `tests/core/test_gateway_live.py`, **not yet run**.
 
 ## State of the active task
 
-- `packages/accel-core/src/accel_core/contracts/`: `_base.py` holds the `Contract` and `Part` bases and shared field types; there is one module per area (`finding`, `playbook`, `knowledge`, `setup`, `skills`, `evals`, `ui_spec`, `project`, `task`, `gate`); `__init__.py` has the `CONTRACTS` registry (name → model) and `json_schema(name)`.
-- `scripts/generate_schemas.py`: writes the schemas and removes orphaned ones; `--check` reports drift and exits 1. `scripts/dev.py` now calls it from `schemas` and `check`.
-- `schemas/`: 15 generated files. Don't hand-edit them.
-- Tests: `tests/core/test_contracts.py` (spec examples, fixtures, 36 rule mutations, evidence path checks) and `tests/dev/test_generate_schemas.py`.
+- `accel_core/errors.py` (new): `AccelError` plus `ConfigError` (exit 3), `BudgetExceeded` (1), `ExternalCallError` (4) and `StructuredOutputError` (4), each with a stable `code`.
+- `accel_core/gateway/`: `config.py` resolves settings (precedence: environment, `.env`, `accel.toml`, defaults), `types.py` holds the provider-neutral types and the `Transport` protocol, `azure.py` is the only module that imports `openai`, and `budget.py` and `gateway.py` are the rest.
+- `openai>=2,<3` was added to `accel-core` (2.54.0 is locked).
 
 ## Next step
 
-1. Follow `start-session` on `main` and claim the next eligible task: T-004 (Azure OpenAI gateway; needs `azure`), T-108 (playbooks) or T-201 (catalog), all of which depend only on done tasks.
-2. For T-004: the gateway authenticates with a deployment API key, per ADR-0008 (accepted), not Entra ID. Gokul will add his Azure values to a local `.env` later. Until then, build and test offline against `FakeGateway` and mark the round-trip test `live_azure`.
+1. Gokul copies `.env.example` to `.env`, fills in the endpoint, key and deployment, then runs `uv run make test-live NEEDS=azure`. Expect 1 passed (about 2 calls and under 4,000 tokens).
+2. If it passes, Gokul merges `task/T-004-azure-gateway` and sets T-004 `done`. If the API version rejects `reasoning_effort` or `tool_choice`, raise `OPENAI_API_VERSION` in `.env`; nothing else should need to change.
 
 ## How to verify
 
 ```bash
-uv run make check
-uv run make schemas && git status --short schemas   # expect no changes
+uv run make check                        # 253 passed, 1 skipped (symlink test on Windows), 1 deselected (live)
+uv run make test-live NEEDS=azure        # needs .env; fails with "AZURE_OPENAI_ENDPOINT is not set" without it
 ```
-
-Expected: 185 passed and 1 skipped (the symlink-escape test skips on Windows without symlink rights and runs on Linux CI). `accel-core` has 99.8% line coverage.
 
 ## Decisions and assumptions
 
-- `schema_version` is `Literal[1]` with a default of 1, because the catalog-entry, task and project examples omit it. A version 2 file is rejected with a clear error.
-- Inferred shapes where the spec gives no full example: `knowledge-manifest` (`stages`, `tool_versions`), the `extract-plan` YAML header, `eval-report` (stored rates must match the cases; `passed` must match the thresholds; `stopped_early` forces a fail), and catalog `emit_when` (`always`, or `playbook` and/or `inventory`, plus `min_confidence`).
-- Rules added from spec prose: in a finding, the id prefix must equal `playbook`; static evidence needs `line`; HAR evidence needs `entry` and screenshot evidence needs `path`; `recorded_by` is `copilot:<model>` or `batch:<model>`. Pilot and production projects need `oidc` and a real data adapter. Task claim fields must match the status, a blocked task needs the new `blocked_reason` field, and an in_review task needs `pr`. `install-check.ok` must equal "every component is ok". Timestamps must include a timezone.
-- Inventory signals (`auth_library_or_middleware`) are snake_case, unlike slugs.
+- Structured output sends `json_schema` with `strict: false`, because Azure's strict mode needs every field required and contract models have defaults. The gateway validates the reply against the model and raises `StructuredOutputError` naming the failing fields.
+- Budgets: a per-call or run token limit also caps `max_completion_tokens`. The overrun check runs after the call, which is still audited (`outcome: budget_exceeded`). A cost budget without prices raises `ConfigError` before any call.
+- The employee-ID pattern defaults to `EMP-1234`-style IDs. A real format can be passed in through `Redactor(rules=...)`.
+- Each redaction session gives the same value the same placeholder, so the model can still see which values repeat.
 
 ## Spec changes
 
-- Wording fix in `spec/03-skill-factory.md#evals`: the example rubric moved its weights out of YAML comments into `{criterion, weight}` items, to match `EvalCase`.
-- ADR-0008 (accepted by Gokul): Azure OpenAI auth uses a deployment API key instead of Entra ID. Updated ADR-0005, spec/01 (config table now lists `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_DEPLOYMENT_NAME` and `OPENAI_API_VERSION`; `azure-identity` dropped), spec/02 (batch mode), spec/06 (C1), `accel.toml.example`, and T-004's acceptance criteria.
+- spec/01 config table: added the token-price row (`accel.toml` `input_usd_per_mtok` and `output_usd_per_mtok`), which cost budgets need. `accel.toml.example` matches.
+- ADR-0008 (accepted earlier this session, on `main`) covers the auth change.
 
 ## Open questions for Gokul
 
-- Is `blocked_reason` on the product task contract OK? spec/04 says "blocked (with reason)" but spec/05's example has no field for it.
+- What format do employee IDs use? The default rule only catches `EMP`-prefixed IDs.
+- What are the per-million-token prices for `gpt-6.1-sol`? Cost budgets can't be enforced until they're set in `accel.toml`.
 
 ## Watch out
 
-- The spec/05 gate-record example uses `<hash>` placeholders; the test replaces them with a dummy hex digest before validating.
-- In YAML, an all-digit hash or commit parses as an int and is rejected. Quote such values in fixtures.
+- `main` has one unpushed commit (`a6d3562`, ADR-0008), and this branch is built on it.
+- Ruff sorts `accel_core` imports in `tests/` as third-party (no blank line after `pytest`). That's the existing config, so don't fight it.
