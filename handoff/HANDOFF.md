@@ -1,15 +1,15 @@
 # Handoff
 
-- **Updated:** 2026-11-10 19:26 IST
+- **Updated:** 2026-11-10 19:40 IST
 - **Agent:** claude-code
-- **Active task:** T-003 Contract models and generated schemas
-- **Task status:** review
-- **Branch:** task/T-003-contracts-and-schemas
-- **Last commit:** f0845e9 T-003: add contract models, schemas and fixtures
+- **Active task:** none
+- **Task status:** done
+- **Branch:** main
+- **Last commit:** 2204092 T-003: handoff
 
 ## Summary
 
-T-003 is ready for review. `accel_core.contracts` has 15 Pydantic contract models (spec/05's table has 14 rows, but `eval-case` and `eval-report` share one). `make schemas` writes `schemas/*.schema.json`, and `make check` now fails on schema drift. All 185 offline tests pass.
+T-003 is done and merged into `main` (fast-forward) at Gokul's request; no task is active. `accel_core.contracts` has 15 Pydantic contract models (spec/05's table has 14 rows, but `eval-case` and `eval-report` share one). `make schemas` writes `schemas/*.schema.json`, and `make check` now fails on schema drift. All 185 offline tests pass.
 
 ## Acceptance criteria
 
@@ -27,8 +27,8 @@ T-003 is ready for review. `accel_core.contracts` has 15 Pydantic contract model
 
 ## Next step
 
-1. Gokul reviews `task/T-003-contracts-and-schemas`, merges it, and sets T-003 `status: done`.
-2. After that, the next eligible tasks are T-004 (gateway; needs `azure`), plus T-108 and T-201, which depend only on T-003.
+1. Follow `start-session` on `main` and claim the next eligible task: T-004 (Azure OpenAI gateway; needs `azure`), T-108 (playbooks) or T-201 (catalog), all of which depend only on done tasks.
+2. For T-004: Gokul will set up Azure access later. The gateway uses Entra ID (`DefaultAzureCredential`) and rejects API keys, so build and test it offline against `FakeGateway` and mark the round-trip test `live_azure`.
 
 ## How to verify
 
