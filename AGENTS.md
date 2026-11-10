@@ -34,7 +34,7 @@ The `end-session` skill walks through this.
 
 These describe the product you're building, not the tools you're building it with. Never break them, even though you may be one of the AI tools named below.
 
-- **Runtime AI services.** The platform's users run it with GitHub Copilot (agent mode in VS Code, and Copilot CLI) and Azure OpenAI (the `gpt-6.1-sol` deployment). Product code calls models only through `accel_core.gateway`, which talks only to Azure OpenAI. Don't add Anthropic, OpenAI-direct, Google, or any other model SDK or endpoint to product code. CI enforces this.
+- **Runtime AI services.** The platform's users run it with GitHub Copilot (agent mode in VS Code, and Copilot CLI) and Azure OpenAI (the `gpt-6.1-sol` deployment). Claude Code is also supported, optionally, for `/accel-setup` only (ADR-0009). Product code calls models only through `accel_core.gateway`, which talks only to Azure OpenAI. Don't add Anthropic, OpenAI-direct, Google, or any other model SDK or endpoint to product code. CI enforces this.
 - **MCP servers are local stdio only:** REA and `accel-mcp`. No remote or hosted MCP servers.
 - **No Copilot cloud agent.** Copilot assets the platform generates target agent mode in VS Code and Copilot CLI only.
 - **VS Code preview features are off for the users' org.** Nothing may depend on a preview feature, such as installing skills from a marketplace.

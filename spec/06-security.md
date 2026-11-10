@@ -7,7 +7,7 @@ Internal code reaches a model only after secrets and personal data are stripped,
 | Control | How it's enforced | Task |
 |---|---|---|
 | **Two approved AI services only (C1)** | All model calls go through `accel_core.gateway` (Azure OpenAI, authenticated with a deployment API key from `AZURE_OPENAI_API_KEY`). The key is never logged, written to the audit trail, or read from `accel.toml`. The CI guard (below) fails on any other model SDK or endpoint. | T-004, T-001 |
-| **Local MCP servers only (C2)** | `.vscode/mcp.json` and `.github/mcp.json` list only `rea` and `accel` as stdio servers; `accel package --lint` rejects `url`-type servers | T-006, T-209 |
+| **Local MCP servers only (C2)** | `.vscode/mcp.json`, `.github/mcp.json` and `.mcp.json` (Claude Code, ADR-0009) list only `rea` and `accel` as stdio servers; `accel package --lint` rejects `url`-type servers | T-006, T-209 |
 | **Pinned, verified setup (C5)** | `install.sh` installs only what `versions.lock` lists, checks every SHA-256, uses no `sudo`, and writes only under `~/.accel`. The setup agent may run only the installer and the skill's fixes. | T-005, T-006 |
 | **Isolated extraction** | Target repos go into `work/`; apps run in a local container with outbound access limited to package registries | T-101, T-105 |
 | **Redaction first (C7)** | gitleaks and personal-data patterns run in stage 1. HAR files lose auth headers, cookies and tokens. Runtime runs use synthetic data. Redaction runs again in the gateway before every model call. | T-101, T-106, T-004 |

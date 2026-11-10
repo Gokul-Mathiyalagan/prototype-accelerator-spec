@@ -15,6 +15,8 @@ Users never install REA by hand. In the platform repo, they run `/accel-setup` i
 | `setup/rea-mcp.sh` | Launcher that starts REA's MCP server from `$ACCEL_HOME` |
 | `.vscode/mcp.json` | Registers `rea` (through the launcher) and `accel` using `${workspaceFolder}`, so it works on every machine |
 | `.github/agents/accel-setup.agent.md` | Setup agent: may run `setup/install.sh` and the fixes in the `rea-setup` skill, and nothing else |
+| `.claude/commands/accel-setup.md`, `.claude/agents/accel-setup.md` | The same command and setup agent for Claude Code (ADR-0009); the agent reads `.github/skills/rea-setup/SKILL.md` |
+| `.mcp.json` | Registers `rea` and `accel` as local stdio servers for Claude Code (ADR-0009) |
 | `.github/prompts/accel-setup.prompt.md` | `/accel-setup [update]` |
 | `.github/skills/rea-setup/SKILL.md` | Steps, plus known failures and fixes: wrong `JAVA_HOME`, missing arm64 decompiler, proxy blocks, Node version mismatch, Gatekeeper quarantine |
 

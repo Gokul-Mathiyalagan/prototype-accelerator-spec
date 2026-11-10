@@ -109,12 +109,12 @@ tasks:
 
 - id: T-006
   phase: 0
-  title: Copilot setup assets for /accel-setup
-  goal: Users run /accel-setup in VS Code and Copilot installs REA, troubleshoots, and proves it works.
-  spec: [spec/02-repo-intelligence.md#setup-accel-setup-c5, spec/07-conventions.md#copilot-assets-product]
+  title: Setup assets for /accel-setup (Copilot and Claude Code)
+  goal: Users run /accel-setup in VS Code (Copilot) or in Claude Code, and the assistant installs REA, troubleshoots, and proves it works.
+  spec: [spec/02-repo-intelligence.md#setup-accel-setup-c5, spec/07-conventions.md#copilot-assets-product, spec/decisions/ADR-0009-claude-code-for-accel-setup.md]
   depends_on: [T-005]
   needs: [copilot, rea]
-  paths: [.github/agents/accel-setup.agent.md, .github/prompts/accel-setup.prompt.md, .github/skills/rea-setup/, .github/copilot-instructions.md, .vscode/mcp.json, docs/setup.md]
+  paths: [.github/agents/accel-setup.agent.md, .github/prompts/accel-setup.prompt.md, .github/skills/rea-setup/, .github/copilot-instructions.md, .vscode/mcp.json, .claude/commands/accel-setup.md, .claude/agents/accel-setup.md, .mcp.json, docs/setup.md]
   acceptance:
     - "accel-setup agent may run setup/install.sh and the rea-setup skill's fixes only; its instructions say to stop and ask for anything else"
     - "/accel-setup runs check, explains what's missing, installs with approvals, verifies, asks the user to start the rea server, then calls one REA tool"
@@ -123,6 +123,9 @@ tasks:
     - ".vscode/mcp.json registers rea (via rea-mcp.sh) and accel with ${workspaceFolder} paths only"
     - "Frontmatter of all assets is valid YAML with name and description"
     - "Live check (Gokul, VS Code): on a laptop without REA, /accel-setup reaches a working REA tool call; result recorded in a session log"
+    - "Claude Code (ADR-0009): .claude/commands/accel-setup.md runs the accel-setup subagent in .claude/agents/accel-setup.md, which has the same allowed actions as the Copilot agent and reads .github/skills/rea-setup/SKILL.md instead of a copy; a test checks both agents state the same allowed actions"
+    - ".mcp.json registers rea (via setup/rea-mcp.sh) and accel as local stdio servers with repo-relative paths and no url fields; the AI-endpoint guard covers .mcp.json; nothing is added under .claude/skills/"
+    - "Live check (Gokul, Claude Code): on a macOS or Linux laptop without REA, /accel-setup reaches a working REA tool call; result recorded in a session log"
   status: todo
   owner: null
   progress: ""

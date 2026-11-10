@@ -4,6 +4,7 @@
 - **Date:** 2026-11-10
 - **Decided by:** gokul
 - **Task:** T-000
+- **Amended by:** ADR-0009 (Claude Code can also run `/accel-setup`)
 
 ## Context
 
