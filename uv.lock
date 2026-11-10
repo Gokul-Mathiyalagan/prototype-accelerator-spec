@@ -947,6 +947,7 @@ source = { virtual = "." }
 dev = [
     { name = "gnumake", marker = "sys_platform == 'win32'" },
     { name = "import-linter" },
+    { name = "mcp" },
     { name = "pre-commit" },
     { name = "pyright" },
     { name = "pytest" },
@@ -963,6 +964,7 @@ dev = [
 dev = [
     { name = "gnumake", marker = "sys_platform == 'win32'", specifier = "==4.4.1" },
     { name = "import-linter", specifier = ">=2.3,<3" },
+    { name = "mcp", specifier = ">=1.20,<2" },
     { name = "pre-commit", specifier = ">=4,<5" },
     { name = "pyright", specifier = ">=1.1.400,<2" },
     { name = "pytest", specifier = ">=8.3,<10" },
