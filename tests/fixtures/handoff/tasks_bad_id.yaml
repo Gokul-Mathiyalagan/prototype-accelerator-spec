@@ -1,0 +1,14 @@
+tasks:
+  - id: TASK-123
+    phase: 0
+    title: First task
+    goal: First goal
+    spec: []
+    depends_on: []
+    needs: []
+    paths: []
+    acceptance:
+      - "First acceptance"
+    status: todo
+    owner: null
+    progress: ""

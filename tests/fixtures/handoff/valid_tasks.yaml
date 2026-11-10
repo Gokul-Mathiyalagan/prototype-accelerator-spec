@@ -1,0 +1,28 @@
+tasks:
+  - id: T-001
+    phase: 0
+    title: First task
+    goal: First goal
+    spec: []
+    depends_on: []
+    needs: []
+    paths: []
+    acceptance:
+      - "First acceptance"
+    status: done
+    owner: codex
+    progress: "Done"
+
+  - id: T-002
+    phase: 0
+    title: Second task
+    goal: Second goal
+    spec: []
+    depends_on: [T-001]
+    needs: [azure]
+    paths: []
+    acceptance:
+      - "Second acceptance"
+    status: in_progress
+    owner: antigravity
+    progress: "In progress"

@@ -76,11 +76,17 @@ class Report:
         self.warnings.append(msg)
 
 
-def check_tasks(r: Report) -> dict[str, dict]:
-    if not TASKS.exists():
-        r.error(f"missing {TASKS.relative_to(ROOT)}")
+def check_tasks(
+    r: Report,
+    root: Path = ROOT,
+    tasks_path: Path | None = None,
+) -> dict[str, dict]:
+    tasks_file = tasks_path or (root / "tasks" / "tasks.yaml")
+    if not tasks_file.exists():
+        rel = tasks_file.relative_to(root) if tasks_file.is_relative_to(root) else tasks_file
+        r.error(f"missing {rel}")
         return {}
-    data = yaml.safe_load(TASKS.read_text(encoding="utf-8")) or {}
+    data = yaml.safe_load(tasks_file.read_text(encoding="utf-8")) or {}
     tasks = data.get("tasks")
     if not isinstance(tasks, list) or not tasks:
         r.error("tasks.yaml must have a non-empty top-level 'tasks' list")
@@ -134,7 +140,7 @@ def check_tasks(r: Report) -> dict[str, dict]:
 
         for ref in t.get("spec") or []:
             path = str(ref).split("#", 1)[0]
-            if path and not (ROOT / path).exists():
+            if path and not (root / path).exists():
                 r.warn(f"{tid}: spec reference '{path}' doesn't exist yet")
 
     # dependencies
@@ -163,13 +169,15 @@ def check_tasks(r: Report) -> dict[str, dict]:
 
     def visit(n: str, stack: list[str]) -> None:
         state[n] = 1
-        for d in by_id[n].get("depends_on") or []:
-            if d not in by_id:
-                continue
-            if state.get(d) == 1:
-                r.error("dependency cycle: " + " -> ".join([*stack, n, d]))
-            elif state.get(d) is None:
-                visit(d, [*stack, n])
+        deps = by_id[n].get("depends_on") or []
+        if isinstance(deps, list):
+            for d in deps:
+                if d not in by_id:
+                    continue
+                if state.get(d) == 1:
+                    r.error("dependency cycle: " + " -> ".join([*stack, n, d]))
+                elif state.get(d) is None:
+                    visit(d, [*stack, n])
         state[n] = 2
 
     for n in by_id:
@@ -199,11 +207,18 @@ def section(text: str, name: str) -> str | None:
     return body.strip()
 
 
-def check_handoff(r: Report, tasks: dict[str, dict], use_git: bool) -> None:
-    if not HANDOFF.exists():
+def check_handoff(
+    r: Report,
+    tasks: dict[str, dict],
+    use_git: bool,
+    root: Path = ROOT,
+    handoff_path: Path | None = None,
+) -> None:
+    handoff_file = handoff_path or (root / "handoff" / "HANDOFF.md")
+    if not handoff_file.exists():
         r.error("missing handoff/HANDOFF.md")
         return
-    text = HANDOFF.read_text(encoding="utf-8")
+    text = handoff_file.read_text(encoding="utf-8")
     for f in HANDOFF_FIELDS:
         if field(text, f) is None:
             r.error(f"HANDOFF.md: missing header field '{f}'")
@@ -239,14 +254,14 @@ def check_handoff(r: Report, tasks: dict[str, dict], use_git: bool) -> None:
         try:
             cur = subprocess.run(
                 ["git", "branch", "--show-current"],
-                cwd=ROOT,
+                cwd=root,
                 capture_output=True,
                 text=True,
                 check=True,
             ).stdout.strip()
             dirty = subprocess.run(
                 ["git", "status", "--porcelain"],
-                cwd=ROOT,
+                cwd=root,
                 capture_output=True,
                 text=True,
                 check=True,
@@ -260,11 +275,17 @@ def check_handoff(r: Report, tasks: dict[str, dict], use_git: bool) -> None:
             r.error("working tree has uncommitted changes; commit before handing off")
 
 
-def check_logs(r: Report, tasks: dict[str, dict]) -> None:
-    if not LOG_DIR.exists():
+def check_logs(
+    r: Report,
+    tasks: dict[str, dict],
+    root: Path = ROOT,
+    log_dir: Path | None = None,
+) -> None:
+    logs = log_dir or (root / "handoff" / "log")
+    if not logs.exists():
         r.warn("handoff/log/ doesn't exist")
         return
-    for p in sorted(LOG_DIR.glob("*.md")):
+    for p in sorted(logs.glob("*.md")):
         m = LOG_NAME.match(p.name)
         if not m:
             r.warn(f"log '{p.name}' should be named YYYY-MM-DD-<agent>-T-###.md")
@@ -276,10 +297,15 @@ def check_logs(r: Report, tasks: dict[str, dict]) -> None:
             r.warn(f"log '{p.name}': task {tid} isn't in tasks.yaml")
 
 
-def check_adrs(r: Report) -> None:
-    if not ADR_DIR.exists():
+def check_adrs(
+    r: Report,
+    root: Path = ROOT,
+    adr_dir: Path | None = None,
+) -> None:
+    adrs = adr_dir or (root / "spec" / "decisions")
+    if not adrs.exists():
         return
-    for p in sorted(ADR_DIR.glob("ADR-*.md")):
+    for p in sorted(adrs.glob("ADR-*.md")):
         if p.name == "ADR-template.md":
             continue
         if not ADR_NAME.match(p.name):
@@ -291,17 +317,18 @@ def check_adrs(r: Report) -> None:
             )
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument(
         "--git", action="store_true", help="also require a clean tree on the handoff branch"
     )
-    args = ap.parse_args()
+    ap.add_argument("--root", type=Path, default=ROOT, help="project root directory")
+    args = ap.parse_args(argv)
     r = Report()
-    tasks = check_tasks(r)
-    check_handoff(r, tasks, args.git)
-    check_logs(r, tasks)
-    check_adrs(r)
+    tasks = check_tasks(r, root=args.root)
+    check_handoff(r, tasks, args.git, root=args.root)
+    check_logs(r, tasks, root=args.root)
+    check_adrs(r, root=args.root)
     for w in r.warnings:
         print(f"warning: {w}")
     for e in r.errors:

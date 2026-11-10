@@ -1,0 +1,28 @@
+tasks:
+  - id: T-001
+    phase: 0
+    title: First task
+    goal: First goal
+    spec: []
+    depends_on: []
+    needs: []
+    paths: []
+    acceptance:
+      - "First acceptance"
+    status: todo
+    owner: null
+    progress: ""
+
+  - id: T-001
+    phase: 0
+    title: Duplicate task
+    goal: Duplicate goal
+    spec: []
+    depends_on: []
+    needs: []
+    paths: []
+    acceptance:
+      - "Duplicate acceptance"
+    status: todo
+    owner: null
+    progress: ""

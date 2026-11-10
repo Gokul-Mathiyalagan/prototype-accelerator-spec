@@ -27,47 +27,49 @@ NOTE_TEXT = (
 )
 
 
-def differences() -> list[str]:
+def differences(src: Path = SRC, dst: Path = DST) -> list[str]:
     diffs: list[str] = []
-    if not SRC.exists():
-        return ["missing .agents/skills/"]
-    src_skills = {p.name for p in SRC.iterdir() if p.is_dir()}
-    dst_skills = {p.name for p in DST.iterdir() if p.is_dir()} if DST.exists() else set()
+    if not src.exists():
+        return [f"missing {src}"]
+    src_skills = {p.name for p in src.iterdir() if p.is_dir()}
+    dst_skills = {p.name for p in dst.iterdir() if p.is_dir()} if dst.exists() else set()
     for name in sorted(src_skills - dst_skills):
         diffs.append(f"missing in .claude/skills: {name}")
     for name in sorted(dst_skills - src_skills):
         diffs.append(f"stale in .claude/skills: {name}")
     for name in sorted(src_skills & dst_skills):
-        cmp = filecmp.dircmp(SRC / name, DST / name)
+        cmp = filecmp.dircmp(src / name, dst / name)
         stack = [cmp]
         while stack:
             c = stack.pop()
             for f in c.left_only + c.right_only + c.diff_files:
-                diffs.append(f"differs: {name}/{Path(c.left).relative_to(SRC / name) / f}")
+                diffs.append(f"differs: {name}/{Path(c.left).relative_to(src / name) / f}")
             stack.extend(c.subdirs.values())
     return diffs
 
 
-def sync() -> None:
-    DST.mkdir(parents=True, exist_ok=True)
-    src_skills = {p.name for p in SRC.iterdir() if p.is_dir()}
-    for p in DST.iterdir():
+def sync(src: Path = SRC, dst: Path = DST) -> None:
+    dst.mkdir(parents=True, exist_ok=True)
+    src_skills = {p.name for p in src.iterdir() if p.is_dir()} if src.exists() else set()
+    for p in dst.iterdir():
         if p.is_dir() and p.name not in src_skills:
             shutil.rmtree(p)
     for name in sorted(src_skills):
-        target = DST / name
+        target = dst / name
         if target.exists():
             shutil.rmtree(target)
-        shutil.copytree(SRC / name, target)
-    (DST / NOTE).write_text(NOTE_TEXT, encoding="utf-8")
+        shutil.copytree(src / name, target)
+    (dst / NOTE).write_text(NOTE_TEXT, encoding="utf-8")
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--check", action="store_true", help="report differences instead of copying")
-    args = ap.parse_args()
+    ap.add_argument("--src", type=Path, default=SRC, help="source directory")
+    ap.add_argument("--dst", type=Path, default=DST, help="destination directory")
+    args = ap.parse_args(argv)
     if args.check:
-        diffs = differences()
+        diffs = differences(src=args.src, dst=args.dst)
         for d in diffs:
             print(d)
         print(
@@ -76,8 +78,10 @@ def main() -> int:
             else f"{len(diffs)} differences; run python3 scripts/sync_agent_files.py"
         )
         return 1 if diffs else 0
-    sync()
-    print(f"synced {len([p for p in SRC.iterdir() if p.is_dir()])} skills to .claude/skills/")
+    sync(src=args.src, dst=args.dst)
+    skill_count = len([p for p in args.src.iterdir() if p.is_dir()]) if args.src.exists() else 0
+    dst_label = ".claude/skills/" if args.dst == DST else str(args.dst)
+    print(f"synced {skill_count} skills to {dst_label}")
     return 0
 
 

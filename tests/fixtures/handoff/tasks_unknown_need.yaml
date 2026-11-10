@@ -1,0 +1,14 @@
+tasks:
+  - id: T-001
+    phase: 0
+    title: First task
+    goal: First goal
+    spec: []
+    depends_on: []
+    needs: [quantum]
+    paths: []
+    acceptance:
+      - "First acceptance"
+    status: done
+    owner: codex
+    progress: "Done"
