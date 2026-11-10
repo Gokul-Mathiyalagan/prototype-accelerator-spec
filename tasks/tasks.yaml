@@ -82,9 +82,9 @@ tasks:
     - "Every call writes an audit line (time, caller, purpose, deployment, token counts, cost, redaction counts), never the content"
     - "FakeGateway in accel_core.testing replays recorded responses for unit tests"
     - "A live_azure test makes one tool-calling round trip against gpt-6.1-sol"
-  status: in_progress
+  status: review
   owner: claude-code
-  progress: "Claimed; building gateway, redaction, audit and FakeGateway."
+  progress: "Offline criteria met and tested (253 tests pass); live_azure round-trip test written but not yet run: needs Gokul's .env."
 
 - id: T-005
   phase: 0
