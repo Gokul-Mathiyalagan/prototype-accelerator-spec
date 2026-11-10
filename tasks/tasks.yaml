@@ -126,9 +126,9 @@ tasks:
     - "Claude Code (ADR-0009): .claude/commands/accel-setup.md runs the accel-setup subagent in .claude/agents/accel-setup.md, which has the same allowed actions as the Copilot agent and reads .github/skills/rea-setup/SKILL.md instead of a copy; a test checks both agents state the same allowed actions"
     - ".mcp.json registers rea (via setup/rea-mcp.sh) and accel as local stdio servers with repo-relative paths and no url fields; the AI-endpoint guard covers .mcp.json; nothing is added under .claude/skills/"
     - "Live check (Gokul, Claude Code): on a macOS or Linux laptop without REA, /accel-setup reaches a working REA tool call; result recorded in a session log"
-  status: todo
-  owner: null
-  progress: ""
+  status: in_progress
+  owner: claude-code
+  progress: "Claimed; writing Copilot and Claude Code setup assets."
 
 - id: T-007
   phase: 0
@@ -143,9 +143,9 @@ tasks:
     - "Contains a planted fake secret and fake personal data that redaction must remove"
     - "native-sdk-sample: a tiny C library built to a .so/.dylib with a permissive license file, plus a Python ctypes caller; and a second binary with a no-reverse-engineering license"
     - "Expected findings for each playbook are written down in tests/fixtures/repos/<repo>/EXPECTED.md for later golden tests"
-  status: review
+  status: done
   owner: claude-code
-  progress: "All criteria met: both fixtures, EXPECTED.md checked by tests, planted data caught by redaction, Docker build/run with mock IdP passes; 346 offline tests pass."
+  progress: "Merged into main at Gokul's request; both fixtures, EXPECTED.md validated by tests, Docker build/run with mock IdP; 346 offline tests pass."
 
 - id: T-008
   phase: 0
