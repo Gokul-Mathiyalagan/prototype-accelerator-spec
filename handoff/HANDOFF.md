@@ -1,15 +1,15 @@
 # Handoff
 
-- **Updated:** 2026-11-10 21:05 IST
+- **Updated:** 2026-11-10 21:15 IST
 - **Agent:** claude-code
-- **Active task:** T-005 REA installer, versions.lock and launcher
-- **Task status:** review
-- **Branch:** task/T-005-rea-installer
-- **Last commit:** 8643045 T-005: handoff
+- **Active task:** none
+- **Task status:** done
+- **Branch:** main
+- **Last commit:** dc3e0d7 Merge branch 'task/T-005-rea-installer'
 
 ## Summary
 
-The installer, launcher and `accel setup`/`accel doctor` are built, and every offline criterion passes. A real install in a Linux container (Docker on Gokul's Windows host) works end to end, and the real REA 6.8.0 MCP server answers through `rea-mcp.sh`. The one gap is REA's own `npm run verify:ghidra`, which fails on Linux because of an REA verifier bug (below). Gokul accepted this gap, and T-005 is in review.
+The installer, launcher and `accel setup`/`accel doctor` are built, and every offline criterion passes. A real install in a Linux container (Docker on Gokul's Windows host) works end to end, and the real REA 6.8.0 MCP server answers through `rea-mcp.sh`. The one gap is REA's own `npm run verify:ghidra`, which fails on Linux because of an REA verifier bug (below). Gokul accepted this gap, and T-005 is merged into `main` and done.
 
 ## Acceptance criteria
 
@@ -35,10 +35,9 @@ REA's verifier (`scripts/lib/native-value-e2e.mjs`, `environment()`) starts its 
 
 ## Next step
 
-1. Gokul reviews and merges `task/T-005-rea-installer`, then sets T-005 `done`.
-2. Gokul files the upstream issue drafted in `handoff/log/2026-11-10-claude-code-T-005.md` on morluto/rea.
-3. When convenient, confirm `setup/install.sh verify` on a Mac.
-4. The next eligible tasks are T-006 (Copilot setup assets; needs copilot and rea), T-007 (fixture repos), T-108 (playbooks) and T-201 (catalog).
+1. Gokul files the upstream issue drafted in `handoff/log/2026-11-10-claude-code-T-005.md` on morluto/rea.
+2. When convenient, confirm `setup/install.sh verify` on a Mac.
+3. The next eligible tasks are T-006 (Copilot setup assets; needs copilot and rea), T-007 (fixture repos), T-108 (playbooks) and T-201 (catalog).
 
 ## How to verify
 
